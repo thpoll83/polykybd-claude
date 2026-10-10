@@ -20,6 +20,11 @@ other attached repo's.
 If this repo is missing from a session, the shared rules are missing too. Ask the user
 to attach `thpoll83/polykybd-claude`.
 
+⚠️ **A read-only `add_repo` does not attach it.** For a public repo it only allows an
+anonymous clone, at `/home/user/<owner>/<repo>`, and that clone's CLAUDE.md and skills
+never load. Attach with `access: "push"`, clone to `/home/user/polykybd-claude` (the
+path every repo CLAUDE.md links as `../polykybd-claude`), then call `register_repo_root`.
+
 | dir under `/home/user` | repo | default branch | what it is |
 |---|---|---|---|
 | `qmk_firmware` | thpoll83/qmk_firmware | `PolyKybd` | firmware (QMK fork, `keyboards/polykybd/`) |
@@ -53,6 +58,18 @@ the backstop if a consolidated note turns out to be missing something.
 - **Chromium is installed headless** (`/opt/pw-browsers/chromium`, also through
   Playwright). Look at generated HTML, SVG and rendered pages instead of reasoning
   about the markup.
+- ⚠️ **A `pkill -f` / `pgrep -f` pattern matches the shell that runs it, and kills it**
+  (exit 144, and every step chained after it is lost). The `[x]yz` bracket trick
+  protects only the pattern argument: if the plain text appears anywhere else in the
+  same command line, such as a path, the shell still matches. Run `pgrep -af <name>`
+  as its own command, then `kill <PID>`.
+- ⚠️ **A background command is stopped at its time limit: 30 minutes by default, 2 hours
+  at most.** For a job that may run longer (a Blender render, a long build), detach the
+  job itself (`setsid nohup bash -c '…; echo EXIT $? >> job.log' &`) and wait with a
+  separate `until grep -q '^EXIT' job.log; do sleep 30; done` that has an explicit
+  `timeout`. A stopped watcher then costs nothing, because the job keeps running.
+
+Detail and the incidents behind these: [`docs/web-session.md`](docs/web-session.md).
 
 ## Branching
 
