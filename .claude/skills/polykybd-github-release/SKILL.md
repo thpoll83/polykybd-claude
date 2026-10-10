@@ -84,6 +84,12 @@ Apply these four rules on top of the base skill's per-version gathering:
      plumbing) → **no section at all**; fold the numbers into the single trailing
      "Plus maintenance releases 0.9.x–0.9.y 🧹" line. The versions still increment;
      you are trimming the *notes*, not renumbering.
+     ⚠️ **Build that line from the version list, not from memory.** List every version
+     in the range (the auto-bump commits, or the tags), mark each one as given a section
+     or folded, and check that every folded version appears in the line. A host draft
+     (2026-10-10) folded 1.16.3–1.16.5, 1.16.7 and 1.16.9 but left out 1.16.10–1.16.11,
+     and the user had to add them. A gap in the line reads as versions that never
+     existed.
    ⚠️ **Judge the interval by its DIFF, not by its commit subjects.** An interval whose
    log reads like docs can still carry a user-facing fix in the same merge — a clipped
    UI label and a stale preview stamp were both dropped into the maintenance line on the
