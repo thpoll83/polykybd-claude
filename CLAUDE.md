@@ -104,6 +104,12 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
   arrive confidently wrong, some refuted by their own evidence, and a sound conclusion
   can rest on invented evidence. Fix the true ones. Decline the false ones with the
   counter-evidence on the thread, because CodeRabbit stores a repo learning from it.
+- ⚠️ **Name the check you ran, not a stronger one.** "Read the code", "ran the test"
+  and "measured on the rig" are different claims. On 2026-10-12 one session said
+  "checked by hand" after a code read (qmk#380), "the keymap is correct without a
+  reset" when the keycodes had shifted, and called a DOOM job "hung" at 35 min and
+  cancelled it. 35 min is that job's normal time. Before calling a job stuck, look up
+  its normal duration in the job history.
 - ⚠️ **CodeRabbit auto-review is OFF in all PolyKybd repos** (org setting, 2026-10-08).
   Ask with `@coderabbitai review` posted as a COMMENT. The same line in the PR body does
   nothing.
@@ -179,6 +185,10 @@ firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
 - ⚠️ **A docs PR ships the moment it merges; host and firmware ship on a release.** A
   docs page describing new behaviour waits for the release that carries it, or names
   the required version on the page.
+- ⚠️ **Write that version only after its bump commit exists on the default branch.**
+  Parallel sessions merge in between and take the next numbers. docs#104 named 1.8.6;
+  qmk#361 and qmk#364 merged first and took 1.8.7 and 1.8.8, so the feature shipped in 1.8.9
+  and the page was wrong until docs#118.
 
 Both repos' original release bullets, verbatim: [`docs/releases.md`](docs/releases.md).
 
