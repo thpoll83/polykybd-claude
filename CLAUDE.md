@@ -113,6 +113,11 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
 - ⚠️ **CodeRabbit auto-review is OFF in all PolyKybd repos** (org setting, 2026-10-08).
   Ask with `@coderabbitai review` posted as a COMMENT. The same line in the PR body does
   nothing.
+- ⚠️ **A push cancels CodeRabbit's running review** ("Pull request base or head
+  changed"), and it does not resume. Re-request on the new head. When bot findings
+  arrive minutes apart, fix them in one push per turn rather than one push per finding;
+  ctnd#114 lost four CodeRabbit runs this way. The stop hook rejects an unpushed commit
+  at the end of a turn, so the batching has to happen within the turn.
 - ⚠️ **A green board is NOT evidence anyone reviewed your code.** A quota refusal is a
   review object carrying the head sha, and a clean CodeRabbit pass creates no review
   object at all. Check `get_reviews` and the summary comment's `📥 Commits` range.
