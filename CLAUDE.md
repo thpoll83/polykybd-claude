@@ -98,6 +98,13 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
 
 ## Code review
 
+- ⚠️ **Review traffic belongs on the PR, not in the chat** (maintainer's rule,
+  2026-10-14: bot events turned the conversation into a wall of review text). Handle a
+  bot finding, CI result, rate-limit notice or echo of your own reply on the PR, and
+  tell the user nothing, or one line. Report only what needs them or ends the round:
+  a finding you declined (one line, with why), a blocker, and the end state (merged,
+  ready, or red with its cause). Never restate findings, replies or check lists that
+  are already on the PR.
 - **Ignore CodeRabbit's "Docstring Coverage 80%" check.** It is a CodeRabbit default,
   not project policy, and it does not block. Document new code where it helps a reader.
 - **Verify every AI reviewer finding against the code before acting on it.** Several
