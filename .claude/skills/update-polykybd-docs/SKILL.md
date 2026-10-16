@@ -56,8 +56,10 @@ there or it won't appear in the nav.
 | New term worth defining | `reference/glossary.mdx` |
 | Anything genuinely new | add a page **and** a sidebar entry in `astro.config.mjs`; consider a cross-link from a related page so it's discoverable |
 
-Match the site's voice: **user-facing**, friendly, `<Aside>` callouts and tables,
-no internal debugging detail. If you move/rename a page, add a `redirects` entry in
+Match the site's voice: **user-facing**, plain technical English, `<Aside>` callouts
+and tables, no internal debugging detail. Follow `polykybd-docs/CLAUDE.md` →
+*Writing style*: no idioms (load-bearing, lands, wins, lives in), no rhetorical
+questions, no design rationale or older-version history. If you move/rename a page, add a `redirects` entry in
 `astro.config.mjs` for the old URL.
 
 ## Images
