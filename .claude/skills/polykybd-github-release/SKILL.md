@@ -175,6 +175,24 @@ include them in what you show the user at the review gate.
    `releases/latest` — so this breaks only for people who already have it installed.)
 3. **Stage `PK-<version>.md`** on the `release-notes` branch, as for the other repos.
 
+## 2c. Host only: check the translations BEFORE the review gate
+
+⚠️ `tests/i18n_test.py` passes with EMPTY translations, so a green `main` can
+still show English strings inside the 19 translated menus. The 8 Clear Logs
+strings and their plural from #391 reached v1.17.20 that way; they were found
+only while preparing v1.17.21 (2026-10-16). On the release commit:
+
+```bash
+cd /home/user/PolyKybdHost
+.venv/bin/python scripts/i18n_strings.py check      # "polyhost.pot is current."
+mkdir -p /tmp/tr && .venv/bin/python .claude/skills/translate-ui-catalogs/list_untranslated.py /tmp/tr/msgids.json
+```
+
+Every language must report `0 empty`. Use `check`, not `update`: `update` rewrites
+the `POT-Creation-Date` line in all 20 files even when nothing else changed. If
+`check` exits 1, or any count is not 0, run the `translate-ui-catalogs` skill and merge its PR before you publish.
+Name the result at the review gate ("0 untranslated in all 19 catalogs").
+
 ## 3. REVIEW GATE — get sign-off before creating anything
 
 ⚠️ **PASTE THE WHOLE NOTES INTO CHAT — RENDERED, NOT FENCED. A summary is not the gate.**
