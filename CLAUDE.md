@@ -152,6 +152,22 @@ The field guide (which bot goes quiet in which disguise, merge-commit reviews, p
 pins, worked examples): [`docs/review-conventions.md`](docs/review-conventions.md) and
 the `triage-pr-review` skill.
 
+## Writing style
+
+Write docs pages, CLAUDE.md files, skills, PR bodies and review replies in plain,
+technical English that a non-native reader can follow (maintainer's rule, 2026-10-15;
+docs#131 and docs#133 rewrote all 65 site pages to it).
+
+- **No idioms, metaphors or insider slang.** Write the plain verb: load-bearing →
+  required; lands → is written to; wins → takes priority; lives in → is in; carries →
+  has; in lockstep → together; escape hatch, gotcha, knobs, ground truth, hard-won,
+  quietly, genuinely → say what happens. The full word list is in
+  `polykybd-docs/CLAUDE.md` → *Writing style*.
+- **No rhetorical questions.** State the point.
+- **Cut what the reader does not act on**: design rationale, older-version history, how a
+  render was made, and text that repeats the same page.
+- Real technical terms (CRC, magic number, backpressure) and product names stay.
+
 ## Files kept byte-identical across repos
 
 Nothing in CI compares these copies. Change one, copy it to the others, and run
