@@ -9,7 +9,7 @@ other attached repo's.
 1. **This file** covers rules for all repos: review, branching, mirrored files,
    releases, and the limits of the web session.
 2. **The repo's own `CLAUDE.md`** covers only that repo. It does not repeat these rules.
-   When the two disagree, the repo file wins for that repo.
+   When the two disagree, the repo file takes priority for that repo.
 3. **The docs a CLAUDE.md links** hold the detail and the history behind each rule.
    Read the linked doc before changing that subsystem.
 4. **`.claude/rules/*.md`** (path-scoped) load only when the Read tool opens a
@@ -50,8 +50,8 @@ the backstop if a consolidated note turns out to be missing something.
   error.** A diff against upstream or a tag-anchored range then gives a plausible wrong
   answer. Run `git rev-parse --is-shallow-repository` first;
   `git fetch origin --unshallow --no-recurse-submodules` fixes it.
-- ⚠️ **The checkout can sit BEHIND what this session pushed, or be reset when the
-  container is reclaimed.** Nothing announces it. Before concluding that work is missing,
+- ⚠️ **The checkout can be BEHIND what this session pushed, or be reset when the
+  container is reclaimed.** Nothing reports it. Before concluding that work is missing,
   or that a review finding does not reproduce: `git log --oneline -1`, then
   `git fetch origin <branch> && git log --oneline HEAD..FETCH_HEAD`. Work you remember
   doing that left no trace is a checkout problem first and a code problem second.
@@ -59,7 +59,7 @@ the backstop if a consolidated note turns out to be missing something.
   Playwright). Look at generated HTML, SVG and rendered pages instead of reasoning
   about the markup.
 - ⚠️ **A `pkill -f` / `pgrep -f` pattern matches the shell that runs it, and kills it**
-  (exit 144, and every step chained after it is lost). The `[x]yz` bracket trick
+  (exit 144, and every step chained after it is lost). The `[x]yz` bracket pattern
   protects only the pattern argument: if the plain text appears anywhere else in the
   same command line, such as a path, the shell still matches. Run `pgrep -af <name>`
   as its own command, then `kill <PID>`.
@@ -78,9 +78,9 @@ Detail and the incidents behind these: [`docs/web-session.md`](docs/web-session.
   done. A push to it succeeds and orphans the commit.
 - ⚠️ **A cross-repo feature can leave one repo with commits pushed and NO PR.** Every
   local check passes on that repo. "Commits ahead" cannot answer it either, since a
-  squash-merged branch reads as ahead forever. Only a GitHub query for an existing PR
+  squash-merged branch shows as ahead forever. Only a GitHub query for an existing PR
   can. The `cross-repo-pr-sweep` skill runs it.
-- ⚠️ **A merged badge is not proof the work landed.** Check
+- ⚠️ **A merged badge is not proof the work reached the default branch.** Check
   `git merge-base --is-ancestor <head> origin/<default>`, and confirm by content
   (`git cat-file -e origin/<default>:<a file it added>`). A stacked PR merged within a
   minute of its base merges into the base's branch, and neither PR's content reaches the
@@ -89,9 +89,9 @@ Detail and the incidents behind these: [`docs/web-session.md`](docs/web-session.
   when the base branch is deleted, and merged branches are kept here. Retarget it
   yourself (`update_pull_request base=<default>`), then merge it.
 - ⚠️ **A CLAUDE.md merge conflict is either addition beside addition (keep both) or
-  supersession (the newer version wins outright).** After resolving, grep each of your
-  notes back by name. Taking one side wholesale silently deletes anything that shared
-  the conflict block.
+  supersession (the newer version replaces the older one completely).** After resolving,
+  grep each of your notes back by name. Taking the whole of one side silently deletes
+  anything that shared the conflict block.
 
 Worked examples, the sweep's fail-open modes and stacked-PR recovery:
 [`docs/branching.md`](docs/branching.md).
@@ -99,7 +99,7 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
 ## Code review
 
 - ⚠️ **Review traffic belongs on the PR, not in the chat** (maintainer's rule,
-  2026-10-14: bot events turned the conversation into a wall of review text). Handle a
+  2026-10-14: bot events filled the conversation with review text). Handle a
   bot finding, CI result, rate-limit notice or echo of your own reply on the PR, and
   tell the user nothing, or one line. Report only what needs them or ends the round:
   a finding you declined (one line, with why), a blocker, and the end state (merged,
@@ -148,9 +148,9 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
   In qmk, a finding on an inherited upstream file is a prompt to audit the files we own;
   `qmk_firmware/CLAUDE.md` has the checks.
 
-The field guide (which bot goes quiet in which disguise, merge-commit reviews, parity
-pins, worked examples): [`docs/review-conventions.md`](docs/review-conventions.md) and
-the `triage-pr-review` skill.
+The detailed guide (which bot stops reviewing and how that looks, merge-commit reviews,
+parity pins, worked examples): [`docs/review-conventions.md`](docs/review-conventions.md)
+and the `triage-pr-review` skill.
 
 ## Writing style
 
@@ -181,14 +181,14 @@ Nothing in CI compares these copies. Change one, copy it to the others, and run
 | `noto-fonts.yaml`, `fontpack_render_settings.json`, `lang_flags.json` | qmk (canonical) → host | the host's font dialogs pre-fill wrong values |
 | `quantum/keycodes.h` | qmk → host `polyhost/res/` | the layout editor shows wrong keycode names |
 
-⚠️ **A generated file whose generator's input path has died fails silently, and no
-`cmp` catches it.** Re-run the generator (`--check` where one exists) rather than
+⚠️ **A generated file whose generator's input path no longer exists fails silently, and
+no `cmp` catches it.** Re-run the generator (`--check` where one exists) rather than
 trusting the file.
 
 ## Releases
 
 Every repo releases by **publishing a GitHub Release**, never by pushing a tag. A
-pushed tag lands on the auto-bump `[skip ci]` commit and triggers nothing. Tags:
+pushed tag is placed on the auto-bump `[skip ci]` commit and triggers nothing. Tags:
 firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
 `polykybd-github-release` skill drives it.
 
@@ -197,21 +197,21 @@ firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
   updater offers the same release forever (wincompose `PK-0.9.19`). The fix is to MOVE
   the tag, and only while no release holds it. Delete the release the refusal left
   behind first.
-- ⚠️ **The version bump is label-driven and the label must be set AT OPEN.** It is read
-  at merge time, and a label added during the merge lands too late. A request in the PR
+- ⚠️ **The version increase is label-driven and the label must be set AT OPEN.** It is read
+  at merge time, and a label added during the merge arrives too late. A request in the PR
   body is not a label. `create_pull_request` cannot set labels, so call `issue_write`
   with `labels:` right after opening. ⚠️ Then read the labels back a few minutes later.
   The qmk labeler once overwrote `bump:minor`. `issue_write` replaces the list, so
   re-set it in full (`["keyboard","bump:minor"]`).
 - ⚠️ **PATCH is the default; `bump:minor` is the exception** (maintainer's rule,
   2026-10-03). Use it only for a feature an owner would call new. A `PROTOCOL_VERSION`
-  bump does not imply minor. When unsure, ask.
-- ⚠️ **A `PROTOCOL_VERSION` bump means BOTH firmware and host get released, and the
+  increase does not imply minor. When unsure, ask.
+- ⚠️ **A `PROTOCOL_VERSION` increase means BOTH firmware and host get released, and the
   check is the PUBLISHED versions.** The connect gate is a range, not exact-match, so an
   old host pairs with new firmware and silently leaves the new features off. Publish the
   host first. Host and firmware version numbers are otherwise independent.
 - ⚠️ **A docs PR ships the moment it merges; host and firmware ship on a release.** A
-  docs page describing new behaviour waits for the release that carries it, or names
+  docs page describing new behaviour waits for the release that contains it, or names
   the required version on the page.
 - ⚠️ **Write that version only after its bump commit exists on the default branch.**
   Parallel sessions merge in between and take the next numbers. docs#104 named 1.8.6;
