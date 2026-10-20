@@ -58,6 +58,15 @@ the backstop if a consolidated note turns out to be missing something.
 - **Chromium is installed headless** (`/opt/pw-browsers/chromium`, also through
   Playwright). Look at generated HTML, SVG and rendered pages instead of reasoning
   about the markup.
+- **`gh api` works for reads** through the proxy, although the session says there is
+  no `gh`. A wait for a check run or a review is a bash `until` loop over
+  `gh api repos/<owner>/<repo>/commits/<sha>/check-runs` with a timeout, which is how
+  a push can wait for CodeRabbit's one included review per hour to finish instead
+  of cancelling it (2026-10-20). Writes (release, tag) stay untested.
+- **Set the git identity before the first commit**: `git config user.email
+  noreply@anthropic.com && git config user.name Claude` in each repo. The stop hook
+  rejects an unpushed commit made with the user's address as "unverified" and asks
+  for an amend (2026-10-20).
 - ⚠️ **A `pkill -f` / `pgrep -f` pattern matches the shell that runs it, and kills it**
   (exit 144, and every step chained after it is lost). The `[x]yz` bracket pattern
   protects only the pattern argument: if the plain text appears anywhere else in the
