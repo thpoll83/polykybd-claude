@@ -109,6 +109,12 @@ Apply these four rules on top of the base skill's per-version gathering:
      tap-hold constants do not; they belong in the commit and the docs.
    - A section may open with **one sub-headline sentence** before its bullets when the
      version has a theme worth naming. It is optional, not a slot to fill.
+   - **A number must be one the user experiences** ("about 11 s instead of 50 s",
+     "after 500 ms"). Test-rig statistics, such as replies lost in 100 reboots or
+     milliseconds per fill report, stay in the commit (maintainer's edit, v1.9.9,
+     2026-10-22).
+   - **Word a privacy or security fix as what is now protected**, not as what leaked
+     before ("keeps all location data out of the logs", v1.17.40).
    - **Inline ⚠️ only on something the reader must act on or could be bitten by.**
    If you cannot say it in two lines, the bullet is carrying development detail. Cut
    until it is the change and its consequence.

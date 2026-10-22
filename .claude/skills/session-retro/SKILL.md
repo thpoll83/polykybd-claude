@@ -202,6 +202,10 @@ Recommendation: <which to keep, and why>
 
 ## 6. Where things go
 
+- ⚠️ **polykybd-claude is the default target** (maintainer's rule, 2026-10-22). A
+  learning goes into one of its skills or `docs/`, and a skill used with more than
+  one repo moves here. A repo's own `CLAUDE.md` or doc is the target only to correct
+  text already in it, or for a rule about that repo's code that no skill here covers.
 - **Repo `.claude/skills/`** — committed + shared; use for project-specific
   workflows (this is where the PolyKybd dev skills live).
 - **`~/.claude/skills/`** — user-level, available in every session regardless of
