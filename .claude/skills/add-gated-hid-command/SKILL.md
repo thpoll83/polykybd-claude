@@ -48,6 +48,10 @@ export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"   # container: q
 1. `keyboards/polykybd/hid_com.c` — add the `case NN:` (or read the new byte).
    Reply with `hid_reply(data, NN, ok)` + `raw_hid_send`; NACK an out-of-range value
    unless the range is deliberately open.
+   ⚠️ **A command that resets the board replies with `raw_hid_send_before_reset()`.**
+   A plain `raw_hid_send()` only queues the reply, and a reset in the next ~100 ms
+   loses it or delivers it cut off (40 of 100 rig reboots before qmk#400). Cmds 23,
+   25, 43 and `FW_UP_APPLY` use it.
 2. `keyboards/polykybd/config.h` — `PROTOCOL_VERSION` += 1.
 3. If it needs to reach the **slave**, bridge it and check the ack with
    `sync_succeeded()` — never bool-test `send_to_bridge()`, every return is non-zero.
