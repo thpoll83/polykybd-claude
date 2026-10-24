@@ -22,7 +22,23 @@ an older keyboard, instead of greying out its menu entry.
 | A new command the firmware has never had | new `case NN` | **yes**, and a `supports()` gate |
 | A new flag/byte on an existing command | extra payload byte | **yes** — an old firmware IGNORES it, which is the dangerous direction |
 | A new *value* in an already open-ended set (e.g. another glyph script) | none | **no** — see `GlyphScript`, deliberately open |
+| A per-item flag on data an existing command already carries | a value range the field never uses | **yes** — older firmware must reject the range, not misread it |
 | Bulk overlay / font-pack / profiler traffic | dispatched independently | **no** |
+
+⚠️ **Before adding a command or a flag byte, look for an unused value range in a field
+the command already sends** (maintainer's rule: keep the payload bytes and the report count small). v25 marks
+an overlay mapping pair "no legend" by sending its pool slot `to` plus 600
+(`NUM_OVERLAY_SLOTS`): 600..1199 can never be a real slot, older firmware rejects it as
+out of pool, and the flagged pairs share the plain reports. The first design, cmd 44
+(cmd 33 plus a flag byte), cost a byte per report, separate reports per flag value, a
+split-sync bit and two more repair passes, and was rejected for that. Before using a range:
+
+- Read the decoder of the oldest firmware the host still connects to
+  (`MIN_SUPPORTED_PROTOCOL`), not only the current one, and confirm it rejects the range.
+  The host gate keeps the offset away from older firmware; the rejection covers a gate
+  that is wrong.
+- Check that the encoded value still fits the width the field is packed at.
+- Pin both in unit tests at the range boundaries (599, 600, 1199, 1200 for v25).
 
 ⚠️ **Open vs closed ranges are a real design decision, not a default.** An unknown
 `GlyphScript` index is accepted and degrades to the normal legend, which is what
