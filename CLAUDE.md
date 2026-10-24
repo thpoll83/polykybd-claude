@@ -62,7 +62,10 @@ the backstop if a consolidated note turns out to be missing something.
   no `gh`. A wait for a check run or a review is a bash `until` loop over
   `gh api repos/<owner>/<repo>/commits/<sha>/check-runs` with a timeout, which is how
   a push can wait for CodeRabbit's one included review per hour to finish instead
-  of cancelling it (2026-10-20). Writes (release, tag) stay untested.
+  of cancelling it (2026-10-20). Re-running one job works:
+  `gh api -X POST repos/<owner>/<repo>/actions/jobs/<job-id>/rerun` (the HIL job on
+  qmk#404 after its ctnd test merged, 2026-10-24). Writes for a release or a tag stay
+  untested.
 - **Set the git identity before the first commit**: `git config user.email
   noreply@anthropic.com && git config user.name Claude` in each repo. The stop hook
   rejects an unpushed commit made with the user's address as "unverified" and asks
