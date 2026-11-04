@@ -246,8 +246,9 @@ firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
   site's requirements to the next versions (docs#146 and a restore fixed both). The
   notes of a published release stay as they are. The next notes cover only what
   merged since that release.
-- ⚠️ **Other merges move the next version while you wait.** In two hours on
-  2026-11-04 the host went from 1.17.83 to 1.17.87 through four unrelated PRs, and
+- ⚠️ **Other merges move the next version while you wait.** In under three hours on
+  2026-11-04 the host went from 1.17.83 to 1.17.87: five merges, three of them from
+  other sessions (host#507, #495, #531), and
   the staged notes and the docs page were renamed three times. Before handing the
   user the publish command, run `git log --oneline <last-published-tag>..origin/<default>`
   and fold every user-facing merge into the notes.
