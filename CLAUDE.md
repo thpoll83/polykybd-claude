@@ -238,6 +238,20 @@ firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
   1.9.15 and from 1.17.49 to 1.17.82, so no user could ever install either number. When
   the release is not out yet, write the version the staged notes name
   (`release-notes/<tag>.md`), and correct it if a merge moves the release.
+- ⚠️ **Read the PUBLISHED releases before you write or restage any version**:
+  `gh api repos/<owner>/<repo>/releases --jq '.[0].tag_name'`. A session summary or
+  your memory of "not released yet" is not evidence. On 2026-11-04 a summary said host
+  1.17.82 and firmware 1.9.15 were unpublished when both had been published that
+  morning. The session replaced their notes on `release-notes` and moved the docs
+  site's requirements to the next versions (docs#146 and a restore fixed both). The
+  notes of a published release stay as they are. The next notes cover only what
+  merged since that release.
+- ⚠️ **Other merges move the next version while you wait.** In under three hours on
+  2026-11-04 the host went from 1.17.83 to 1.17.87: five merges, three of them from
+  other sessions (host#507, #495, #531), and
+  the staged notes and the docs page were renamed three times. Before handing the
+  user the publish command, run `git log --oneline <last-published-tag>..origin/<default>`
+  and fold every user-facing merge into the notes.
 
 Both repos' original release bullets, verbatim: [`docs/releases.md`](docs/releases.md).
 

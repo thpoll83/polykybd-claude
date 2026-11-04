@@ -194,6 +194,25 @@ and relative links were adjusted to suit a standalone file.
     changed"*: no findings, no error, and nothing re-runs it. Push a fix after the
     review lands, or send a fresh `@coderabbitai review` right after the push
     (qmk#319, 2026-09-30).
+  - ⚠️ **The other bots have their own quotas, and on 2026-11-04 every one of them
+    ran out in one session.** Each posts a review or comment that looks like a
+    review, so read it:
+    - **Greptile:** a monthly "flex usage" limit for the organization. Over it, it
+      posts a COMMENTED review *"This review was skipped because it would exceed your
+      organization's monthly flex usage limit"* (docs#147). Its `Greptile Review`
+      check stays green.
+    - **Revix:** a few free reviews per day for the organization, reset at
+      00:00 UTC. Over it, the review body is a *"free-quota-reached"* badge
+      (host#535).
+    - **Sourcery:** a budget of 250,000 diff characters per 7 days. Over it, it
+      comments *"you've used your own review budget"* with the wait time, and its
+      check is `skipped` (docs#145 to #149). A later push can still get a real
+      Sourcery review once the budget frees (docs#149 was approved at 15:10).
+    - **Qodo:** *"reviews are paused because the subscription is no longer active"*
+      on every PR. It reviews nothing.
+    When they are out, CodeRabbit's one review per hour is the only one left, for all
+    repos together. Spend it on the PR that has no other review, and set a reminder
+    for the next hour instead of asking again at once.
   - ⚠️ **By 2026-10-08 CodeRabbit auto-review was OFF on all four repos, not only
     `polykybd-docs`.** On qmk#359, host#322 and ctnd#110 it posted *"Review skipped
     — Auto reviews are disabled on this repository"*, and it said the same again on
