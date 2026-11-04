@@ -137,8 +137,9 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
   arrive minutes apart, fix them in one push per turn rather than one push per finding;
   ctnd#114 lost four CodeRabbit runs this way. The stop hook rejects an unpushed commit
   and uncommitted changes at the end of a turn, so to hold a fix across turns until the
-  review finishes, `git stash push -m <why> <file>` it and pop it then (qmk#407,
-  2026-10-30).
+  review finishes, keep it uncommitted, `git stash push -u -m <why> -- <every file of
+  the fix>` it (`-u` takes new files too) and pop it then (qmk#407, 2026-10-30). A
+  stash holds only uncommitted changes: a fix already committed cannot wait this way.
 - ⚠️ **A green board is NOT evidence anyone reviewed your code.** A quota refusal is a
   review object carrying the head sha, and a clean CodeRabbit pass creates no review
   object at all. Check `get_reviews` and the summary comment's `📥 Commits` range.
