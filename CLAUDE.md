@@ -136,7 +136,9 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
   changed"), and it does not resume. Re-request on the new head. When bot findings
   arrive minutes apart, fix them in one push per turn rather than one push per finding;
   ctnd#114 lost four CodeRabbit runs this way. The stop hook rejects an unpushed commit
-  at the end of a turn, so the batching has to happen within the turn.
+  and uncommitted changes at the end of a turn, so to hold a fix across turns until the
+  review finishes, `git stash push -m <why> <file>` it and pop it then (qmk#407,
+  2026-10-30).
 - ⚠️ **A green board is NOT evidence anyone reviewed your code.** A quota refusal is a
   review object carrying the head sha, and a clean CodeRabbit pass creates no review
   object at all. Check `get_reviews` and the summary comment's `📥 Commits` range.
@@ -229,6 +231,12 @@ firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
   Parallel sessions merge in between and take the next numbers. docs#104 named 1.8.6;
   qmk#361 and qmk#364 merged first and took 1.8.7 and 1.8.8, so the feature shipped in 1.8.9
   and the page was wrong until docs#118.
+- ⚠️ **Name the version that gets PUBLISHED, not the bump that added the feature.** Every
+  merge takes a version, but a release covers many of them: the overlays page said a
+  feature needed firmware 1.9.13 and host 1.17.53, and the releases went from 1.9.12 to
+  1.9.15 and from 1.17.49 to 1.17.82, so no user could ever install either number. When
+  the release is not out yet, write the version the staged notes name
+  (`release-notes/<tag>.md`), and correct it if a merge moves the release.
 
 Both repos' original release bullets, verbatim: [`docs/releases.md`](docs/releases.md).
 
