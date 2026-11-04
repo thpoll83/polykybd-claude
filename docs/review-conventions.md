@@ -172,6 +172,16 @@ and relative links were adjusted to suit a standalone file.
     state and easy to miss in a list of green rows: from that point every
     further push is unreviewed by it. On a long PR, expect to lose Sourcery
     partway and ask CodeRabbit by hand for the pushes that matter.
+  - **Revix (`revix-ai-review[bot]`) reviews PolyKybdHost on every push** and
+    labels each inline finding. `**issue:**` is blocking: verify it and fix
+    what is real. `**suggestion:**` is optional under the PR rules: reply,
+    resolve, and fix it only in a push you are making anyway. Some findings name
+    a repo rule (`📏 Rule: explicit-utf8-encoding`). ⚠️ Its
+    `lazy-import-optional-deps` rule flags a module-level `import numpy` in
+    `polyhost/services/`, but numpy is a required dependency
+    (`requirements.txt`) and `game_assets/build.py` imports it before any reader
+    loads, so a lazy import there saves nothing; decline it with that evidence
+    (PolyKybdHost#495, 2026-11-04).
   - ⚠️ **CodeRabbit gives ONE included review per hour, and a push mid-review
     ABORTS it.** Every summary says *"1 included review per hour; 0 remain after
     this review"*. ⚠️ **A request over the limit is REFUSED, not queued**: three
