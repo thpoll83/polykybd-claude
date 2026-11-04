@@ -195,6 +195,26 @@ and relative links were adjusted to suit a standalone file.
     to state it once for both.
 
 
+- ⚠️ **Parallel overlay PRs in PolyKybdHost conflict in the same three places
+  after each squash merge** (about ten times on 2026-11-03/04, while 14 overlay
+  PRs merged one after another):
+  - `polyhost/res/overlay-mapping.poly.yaml` and
+    `tests/handler/active_window_test.py`: each PR appends its mapping entry and
+    its routing test at the same spot. Addition beside addition: keep both.
+  - `polyhost/res/locale/*.po` and `polyhost.pot`: a branch that ran
+    `i18n_strings.py update` conflicts with main on the `POT-Creation-Date`
+    header line only. Take the newer date, then check `i18n_strings.py check`
+    reports the template current.
+  - ⚠️ **Two apps on one process name are NOT addition beside addition.** Ghidra
+    and Minecraft Java both run in `java`/`javaw`; each PR gave those entries its
+    own `titles-startswith` map, and keeping both sides would have produced two
+    maps under one key. Merge them into one map (Minecraft and CodeBrowser keys
+    side by side), anchor single branches (`&minecraft_java_branch`) rather than
+    the whole map, and add a test that routes both titles (PolyKybdHost#492).
+  - After merging one PR, re-read the next PR's `mergeable_state`: it reads
+    `unknown` for a few seconds, then `dirty` when the merge just made it
+    conflict.
+
 ## Worked example: a merged PR whose work never reached `main` (2026-09-19)
 
 The rule in `CLAUDE.md` says a **push** to a merged branch orphans the commit.
