@@ -182,6 +182,17 @@ and relative links were adjusted to suit a standalone file.
     (`requirements.txt`) and `game_assets/build.py` imports it before any reader
     loads, so a lazy import there saves nothing; decline it with that evidence
     (PolyKybdHost#495, 2026-11-04).
+  - ⚠️ **On a busy day every free quota runs out, and each bot says so in its
+    own way.** On 2026-11-05 seven host PRs in four hours hit all of them:
+    Revix posted a review with a "free quota reached" badge (it resumes at
+    00:00 UTC); Sourcery answered "you've used your own review budget of 250,000
+    diff characters for the last 7 days", and refused PolyKybdHost#573 as "too
+    large" at 10,294 changed lines, though its message names 20,000 as the
+    limit; Qodo answered "reviews are paused" (billing). A host PR that
+    regenerates the 19 `.po` catalogs is that large, almost all of it shifted
+    line references. With the others out, CodeRabbit asked by hand is the only
+    reviewer, at one review per hour: ask for one PR at a time, the most
+    important first, and keep the rest queued.
   - ⚠️ **CodeRabbit gives ONE included review per hour, and a push mid-review
     ABORTS it.** Every summary says *"1 included review per hour; 0 remain after
     this review"*. ⚠️ **A request over the limit is REFUSED, not queued**: three

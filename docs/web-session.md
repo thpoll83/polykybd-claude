@@ -61,6 +61,23 @@ Four watchers reached their limit that session while their renders kept running,
 renders were picked up afterwards from `job.log`. When a watcher is stopped, check the
 job with `pgrep -af` and the log's modification time before concluding it died.
 
+## Reading a Linux package's files without installing it
+
+The Ubuntu archive is reachable through the proxy, so the files a package ships
+(desktop entries, D-Bus service files, icons) can be read in the container before
+code depends on them:
+
+```bash
+mkdir -p /tmp/pkg && cd /tmp/pkg
+apt-get download gnome-terminal          # warns "unsandboxed as root": harmless
+dpkg-deb -x gnome-terminal_*.deb x
+find x -name '*.service' -o -name '*.desktop'
+```
+
+Name the package version as evidence in the PR. PolyKybdHost#578 (2026-11-05) read
+`org.gnome.Terminal.service` from gnome-terminal 3.52.0-1ubuntu2 to confirm that its
+`Exec=` is `/usr/libexec/gnome-terminal-server` before matching on it.
+
 ## When the push attach is refused
 
 On 2026-11-04 the auto-mode classifier refused `add_repo` with `access: "push"` for

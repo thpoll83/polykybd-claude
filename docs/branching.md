@@ -83,6 +83,25 @@ Merged 2026-10-10 from `qmk_firmware/keyboards/polykybd/BRANCHING.md` and
     standing on", nothing more.
 
 
+## Testing several open PRs together
+
+When the user wants to try several unmerged PRs at once, give them the merge to
+run in their own checkout, not a combined branch: the session cannot delete a
+remote branch (the proxy refuses it), so a pushed `test/...` branch stays for good.
+
+```bash
+git fetch origin main <branch-a> <branch-b> <branch-c>
+git checkout -B <name>-test origin/main
+git merge --no-edit origin/<branch-a> origin/<branch-b> origin/<branch-c>
+```
+
+Before handing it over, run the same one-step merge in a detached scratch worktree
+(`git worktree add --detach /tmp/combined origin/main`), merge the branches one at a
+time in a second checkout, and compare the two trees (`git diff <one-step>
+<step-by-step>` must be empty). Then run each PR's own tests on the combined tree and
+remove the worktree. PolyKybdHost, 2026-11-05: five branches, one command, identical
+trees, 338 tests of the five PRs passing together.
+
 ## Landing a stacked PR
 
 The orphaned-merge post-mortem (#244/#245) is below, under *More branching rules*.
