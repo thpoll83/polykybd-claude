@@ -24,6 +24,9 @@ to attach `thpoll83/polykybd-claude`.
 anonymous clone, at `/home/user/<owner>/<repo>`, and that clone's CLAUDE.md and skills
 never load. Attach with `access: "push"`, clone to `/home/user/polykybd-claude` (the
 path every repo CLAUDE.md links as `../polykybd-claude`), then call `register_repo_root`.
+⚠️ **The auto-mode classifier can refuse the push attach**, with no reason given.
+What still works then, and how a change for this repo reaches it:
+[`docs/web-session.md`](docs/web-session.md) → *When the push attach is refused*.
 
 | dir under `/home/user` | repo | default branch | what it is |
 |---|---|---|---|
