@@ -60,3 +60,16 @@ until grep -q '^EXIT' job.log; do sleep 30; done; grep -E '^EXIT|Saved' job.log
 Four watchers reached their limit that session while their renders kept running, and the
 renders were picked up afterwards from `job.log`. When a watcher is stopped, check the
 job with `pgrep -af` and the log's modification time before concluding it died.
+
+## When the push attach is refused
+
+On 2026-11-04 the auto-mode classifier refused `add_repo` with `access: "push"` for
+this repo twice, with no reason given. `access: "read"` still worked: it gives an
+anonymous clone at `/home/user/thpoll83/polykybd-claude`.
+
+- Open a skill's `SKILL.md` from that clone with the Read tool and follow its steps
+  yourself. Its skills are not available through the Skill tool.
+- Nothing can be pushed from that clone. Write a change for this repo as a patch file
+  in the scratchpad and give the user its path.
+- The user can allow the attach. On 2026-11-05 the user asked for it directly and the
+  same `add_repo` call succeeded; the patch was then applied as polykybd-claude#17.
