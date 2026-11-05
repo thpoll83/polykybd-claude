@@ -24,6 +24,11 @@ to attach `thpoll83/polykybd-claude`.
 anonymous clone, at `/home/user/<owner>/<repo>`, and that clone's CLAUDE.md and skills
 never load. Attach with `access: "push"`, clone to `/home/user/polykybd-claude` (the
 path every repo CLAUDE.md links as `../polykybd-claude`), then call `register_repo_root`.
+⚠️ **The auto-mode classifier can refuse the push attach**, with no reason given
+(2026-11-04, during a session retro). The read clone still works for READING:
+open a skill's `SKILL.md` with Read and follow it by hand, since its skills do not
+load. It cannot be pushed, so a retro note for this repo becomes a patch file the
+user applies, unless they allow `add_repo` or attach the repo themselves.
 
 | dir under `/home/user` | repo | default branch | what it is |
 |---|---|---|---|
