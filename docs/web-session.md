@@ -78,6 +78,17 @@ Name the package version as evidence in the PR. PolyKybdHost#578 (2026-11-05) re
 `org.gnome.Terminal.service` from gnome-terminal 3.52.0-1ubuntu2 to confirm that its
 `Exec=` is `/usr/libexec/gnome-terminal-server` before matching on it.
 
+⚠️ **`apt-get install` puts no translation files on disk here.** The image drops
+`/usr/share/locale` on install, so `libkf5configwidgets-data` installed cleanly and
+left no `.mo` files. `apt-get download` + `dpkg-deb -x` keeps them. For a check of
+UI translations, Ubuntu's `language-pack-gnome-<lang>-base` packages
+(`zh-hans`, `zh-hant`; `pt` includes `pt_BR`) hold about 200 real catalogs per
+language: GTK3 and the GNOME apps, beside KDE's `libkf5configwidgets-data` and
+`libkf5xmlgui-data`. The proxy refuses `gitlab.gnome.org`, so the GNOME `.po`
+sources cannot be fetched instead. PolyKybdHost#639 (2026-11-06) checked its
+shortcut-label phrases against 4,219 such catalogs
+(`tools/shortcut_lexicon_verify.py` says how).
+
 ## When the push attach is refused
 
 On 2026-11-04 the auto-mode classifier refused `add_repo` with `access: "push"` for

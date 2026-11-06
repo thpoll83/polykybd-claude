@@ -212,6 +212,14 @@ line count, and it is what a reviewer cannot easily reproduce.
 
 ## Pitfalls
 
+- ⚠️ **`os.kill(pid, 0)` says a killed process is still alive.** A killed child
+  that nobody has reaped yet is a zombie, and signal 0 still reaches it, so a
+  "the child survived" assertion passes whether the child lived or not. Make the
+  child prove it is alive by DOING something after the event under test: write
+  a file once the test signals it, and assert the file. On 2026-11-06 the first
+  version of PolyKybdHost#623's process-group test (`spawn_detached()` must
+  survive a launchd-style group kill) passed with the fix removed; only the
+  mutation run showed it. The rewritten test fails without the fix.
 - **The ANSI escape trap above** — the single most likely way this goes wrong,
   and it fails silently in the direction of "everything is fine".
 - ⚠️ **A mutation that never applied looks exactly like a mutation that was not
