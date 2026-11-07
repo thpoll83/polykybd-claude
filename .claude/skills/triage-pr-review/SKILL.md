@@ -336,7 +336,8 @@ you act on it — that is the standing check the CLAUDE.md rules still carry.
     workflows), opened as a draft titled "[review only, do not merge]",
     `@coderabbitai review` posted on it by hand, the fixes pushed to the real PR,
     then the draft closed. If a file that is not generated still cannot go into the
-    draft (the draft itself would pass 100 files), review it by hand and say so in the
+    draft (the draft itself would pass 100 files), or CodeRabbit's path filter
+    skips it, review it by hand and say so in the
     real PR's body. host#688 had 298 files after CodeRabbit's PNG filter;
     draft host#689 with its 29 code files got a full review, and 2 of its 4 findings
     were real fixes for #688 (2026-11-06). ⚠️ A web session cannot delete the draft's
