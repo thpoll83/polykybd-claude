@@ -327,9 +327,17 @@ you act on it — that is the standing check the CLAUDE.md rules still carry.
     that it is **guaranteed** on a catch-up merge rather than occasional. The
     0.33.13 merge (#197) was skipped on all four pushes (401 → 425 files), each
     time rendering as an ordinary status comment with a file table, so the PR read
-    as reviewed. There is no way to get it reviewed short of splitting the PR — so
-    for a merge PR, treat the **build + HIL checks and hardware testing as the only
-    real verification**, and don't count the green board as review cover.
+    as reviewed. For an upstream merge there is no way to get it reviewed short of
+    splitting the PR — so treat the **build + HIL checks and hardware testing as the
+    only real verification**, and don't count the green board as review cover.
+    **For our own PR that is large only because of generated files** (overlay specs,
+    PNGs), a **review-only draft PR** works: a branch from the default branch carrying
+    just the code files of the real PR, opened as a draft titled "[review only, do
+    not merge]", `@coderabbitai review` on it, the fixes pushed to the real PR, then
+    the draft closed. host#688 had 298 files after CodeRabbit's PNG filter; draft
+    host#689 with its 29 code files got a full review, and 2 of its 4 findings were
+    real fixes for #688 (2026-11-06). Its branch stays on the remote, since a web
+    session cannot delete branches.
   - ⚠️ **A STACKED PR gets no automatic review at all** — *"Review skipped — Auto
     reviews are disabled on base/target branches other than the default branch."*
     This is a **fourth** no-review mode (alongside the rate limit, the <10-stars
