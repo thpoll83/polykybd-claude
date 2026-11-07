@@ -4,8 +4,9 @@
 
 GitHub runs actions built for Node 20 on Node 24 and warns on every run ("Node.js 20
 is deprecated. The following actions target Node.js 20 but are being forced to run
-on Node.js 24"). They stop working when Node 20 is removed from the runners. The
-first major of each action whose `action.yml` says `using: node24`:
+on Node.js 24"). Such an action keeps running only as long as its code works on
+Node 24, and the warning stays until we move to a major built for Node 24. The first
+major of each action whose `action.yml` says `using: node24`:
 
 | action | first Node 24 major | used in our workflows |
 |---|---|---|
