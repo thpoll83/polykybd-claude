@@ -257,6 +257,8 @@ firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
   and fold every user-facing merge into the notes.
 
 Both repos' original release bullets, verbatim: [`docs/releases.md`](docs/releases.md).
+Action versions in our own workflows (the Node 24 majors, why the bump workflows
+stay on checkout v5): [`docs/github-actions.md`](docs/github-actions.md).
 
 ## What costs context
 
