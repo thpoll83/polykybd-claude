@@ -48,7 +48,8 @@ the backstop if a consolidated note turns out to be missing something.
 - **You cannot push tags, create a release, delete a remote branch, or create a
   repo.** The git proxy returns 403 on tag refs and branch deletes. There is no `gh`.
   For a release, stage the notes and hand the user `python scripts/publish_release.py`.
-  Don't create scratch branches you cannot clean up.
+  Don't create scratch branches you cannot clean up, unless the user agrees first and
+  you give them the branch name to delete (the review-only draft in `triage-pr-review`).
 - ⚠️ **The clone is SHALLOW, and `git merge-base` then returns an EMPTY STRING, not an
   error.** A diff against upstream or a tag-anchored range then gives a plausible wrong
   answer. Run `git rev-parse --is-shallow-repository` first;
@@ -257,6 +258,8 @@ firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
   and fold every user-facing merge into the notes.
 
 Both repos' original release bullets, verbatim: [`docs/releases.md`](docs/releases.md).
+Action versions in our own workflows (the Node 24 majors, why the bump workflows
+stay on checkout v5): [`docs/github-actions.md`](docs/github-actions.md).
 
 ## What costs context
 
