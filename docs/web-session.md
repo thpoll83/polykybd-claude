@@ -101,3 +101,17 @@ anonymous clone at `/home/user/thpoll83/polykybd-claude`.
   in the scratchpad and give the user its path.
 - The user can allow the attach. On 2026-11-05 the user asked for it directly and the
   same `add_repo` call succeeded; the patch was then applied as polykybd-claude#17.
+
+## When resolving a review thread is refused
+
+On 2026-11-07 the auto-mode classifier refused
+`gh api -X POST repos/<owner>/<repo>/pulls/<n>/ccr/comments/<id>/resolve` as an
+external write ("External System Writes"). The four threads on PolyKybdHost#683 were
+finished: the maintainer had declined each finding and CodeRabbit had accepted.
+
+- Reading threads works: `gh api repos/<owner>/<repo>/pulls/<n>/ccr/review_threads`
+  lists each thread with `resolved` and its `comment_ids`.
+- `mcp__github__resolve_review_thread` is the other route. It was not tried on these
+  threads, so it is not known whether the classifier allows it.
+- When neither works, list the open threads in your report and leave them to the user.
+  An unresolved thread does not block a merge here.
