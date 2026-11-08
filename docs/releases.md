@@ -146,3 +146,80 @@ in [`docs/releases.md`](../../PolyKybdHost/docs/releases.md).
   stage the notes on the branch and hand the user `python scripts/publish_release.py`.
   The same proxy 403s on branch **deletion**, so don't create scratch branches you
   can't clean up.
+
+
+## publish_release.py: a lookup is three-valued, and a timeout needs an `except`
+
+Added 2026-11-08 from the release-gate session (qmk#376, host#349, host#354). Not part
+of the verbatim archives above.
+
+Three lookups answer in **three** values, and collapsing any of them to two is how the
+check stops checking: `release_exists()` returns `True`/`False`/`None`, `tag_commit()`
+returns a sha/`""`/`None`, and the host `release.yml` withdrawal step reports
+`yes`/`no`/`unknown`. **Only a 404 means "confirmed absent".** A 401, a 403, a 5xx or a
+timeout all mean "cannot tell", and the caller must then take the stricter path. Each
+of the three was first written with two values and corrected after a review found it
+(Revix and Greptile on wincompose#25, Greptile on host#318 and qmk#356).
+
+⚠️ **A 404 from `releases/tags/<tag>` means no PUBLISHED release, which is weaker than
+no release.** GitHub documents that endpoint as "Get a published release with the
+specified tag", and documents drafts as listed only to callers with push access ("Only
+users with push access will receive listings for draft releases", *List releases*). So a
+draft carrying that `tag_name` reads as absent there however the call is authenticated.
+⚠️ **And on a PRIVATE repository an unauthorized by-tag call 404s whether or not a
+published release exists**, so the 404 only means "no published release" when the call
+was authorized. Use the push-access credential for both checks, and before moving a tag
+list every release, draft and published:
+
+```bash
+gh api --paginate "repos/<owner>/<repo>/releases?per_page=100" \
+  --jq '.[] | "\(.draft)\t\(.tag_name)"'
+```
+
+⚠️ **`--paginate` is required** — a repository with more than one page of releases can
+hold the target on a later page — and ⚠️ **the exit status has to be checked whatever
+the output**, not only when it is empty: a later page can fail after an earlier one has
+printed, so a non-empty listing can still be missing the tag you are looking for. Treat
+any failure as inconclusive. What status code the by-tag endpoint returns for a
+draft-only tag is not documented; treat it as unverified rather than assuming the 404.
+
+⚠️ **A read timeout only helps if something catches what it raises.** `API_TIMEOUT = 30`
+is passed to every `urlopen()` so that a connection GitHub accepts and then stops
+answering cannot block forever. `release_exists()` and `_get_json()` each end with
+`except Exception: return None`, so a timeout there becomes their "cannot tell" value.
+`api()` catches only `urllib.error.HTTPError`, so a timeout raises an uncaught traceback
+— on the create path that is *after* the POST has been sent, with no way to tell whether
+the release was created. The timeout made that failure louder rather than safer.
+
+⚠️ **The two failure phases raise DIFFERENT types, so `except OSError` is the one
+catch that covers both.** Python 3.11.18; the last column says what each row rests on,
+because only one of them was measured as a timeout:
+
+| phase | what `urlopen()` raises | `URLError`? | `TimeoutError`? | `OSError`? | evidence |
+|---|---|---|---|---|---|
+| connect | `urllib.error.URLError` wrapping the socket error | yes | no | yes | measured for a REFUSED connect; the timeout case is derived from `do_open()`, since this container refuses rather than dropping SYN |
+| response read | bare `builtins.TimeoutError` | **no** | yes | yes | measured, with the snippet below |
+
+`do_open()` wraps an `OSError` from `h.request()` as `URLError`, so every connect-phase
+failure arrives as `URLError`; a timeout from `h.getresponse()` is not wrapped and
+arrives as `TimeoutError` (since 3.10 `socket.timeout` is an alias of it). So catching
+`URLError` alone misses the read timeout, and catching `TimeoutError` alone misses the
+connect failure. `except Exception` is what makes the two sibling lookups safe; a fix for
+`api()` needs `OSError` or wider.
+
+⚠️ **An earlier version of this note claimed both phases raise a bare `TimeoutError`,
+from a test whose server called `accept()` in both branches** — so neither case was a
+connect-phase failure. Reproduce the read timeout with:
+
+```python
+import socket, threading, time, urllib.request
+srv = socket.socket(); srv.bind(("127.0.0.1", 0)); srv.listen(1)
+threading.Thread(target=lambda: (srv.accept(), time.sleep(5)), daemon=True).start()
+# ProxyHandler({}) is required: with http_proxy set, urlopen() sends the request to the
+# proxy instead of the test server and a proxy error replaces the timeout.
+urllib.request.build_opener(urllib.request.ProxyHandler({})).open(
+    f"http://127.0.0.1:{srv.getsockname()[1]}/", timeout=1)
+```
+
+Unfixed as of 2026-11-08. The fix must be applied to all three copies in one change,
+because nothing in CI compares them (see *Files kept byte-identical across repos*).

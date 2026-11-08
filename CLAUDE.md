@@ -59,6 +59,31 @@ the backstop if a consolidated note turns out to be missing something.
   or that a review finding does not reproduce: `git log --oneline -1`, then
   `git fetch origin <branch> && git log --oneline HEAD..FETCH_HEAD`. Work you remember
   doing that left no trace is a checkout problem first and a code problem second.
+- ⚠️ **A transient 500 is not a capability limit.** `merge_pull_request` returned
+  500 with an empty body four times in one session while every read worked, and the
+  identical call succeeded first try two days later. The 403s above are the real limits
+  and they name themselves. Retry in a later turn before telling the user this session
+  type cannot do something.
+- ⚠️ **An `add_repo` clone fetches ONLY the default branch, so `git push -u` leaves
+  `@{u}` unresolvable and a pushed branch reads as unpushed.** The clone sets
+  `remote.origin.fetch` to `+refs/heads/main:refs/remotes/origin/main` alone, so the push
+  writes the tracking config with no `refs/remotes/origin/<branch>` to point at. `git
+  status` then says "no upstream", `git rev-list @{u}..HEAD` fails, and a stop hook
+  reports "1 unpushed commit and no remote branch" on a branch that is already on the
+  remote. Confirm with `git ls-remote origin refs/heads/<branch>` against `git rev-parse
+  HEAD` before believing it, then add a mapping for THAT branch and fetch it:
+  `git config --add remote.origin.fetch
+  '+refs/heads/<branch>:refs/remotes/origin/<branch>'` and
+  `git fetch origin <branch>`. ⚠️ **`--add`, not a plain set**, which exits 5 with
+  "cannot overwrite multiple values with a single value" once the key holds more than
+  one refspec (measured). ⚠️ **Not a `*` wildcard either**: it makes every later
+  `git fetch` and the documented `--unshallow` pull every branch, and qmk_firmware
+  has over 500 `claude/*` branches.
+- ⚠️ **`merge_pull_request`'s `expectedHeadSha` must be the full 40 characters.**
+  A sha rebuilt from an 8-character prefix returns `409 Head branch was modified` and
+  merges nothing; a wrong length returns "The sha parameter must be exactly 40
+  characters". Read `.head.sha` from `pull_request_read` for each merge rather than
+  reusing a short sha from a commit listing.
 - **Chromium is installed headless** (`/opt/pw-browsers/chromium`, also through
   Playwright). Look at generated HTML, SVG and rendered pages instead of reasoning
   about the markup.
@@ -107,7 +132,18 @@ Detail and the incidents behind these: [`docs/web-session.md`](docs/web-session.
 - ⚠️ **A CLAUDE.md merge conflict is either addition beside addition (keep both) or
   supersession (the newer version replaces the older one completely).** After resolving,
   grep each of your notes back by name. Taking the whole of one side silently deletes
-  anything that shared the conflict block.
+  anything that shared the conflict block. ⚠️ **Supersession runs both ways: the
+  default branch may have PRUNED the section you edited**, so neither side can be taken
+  whole. Resolve the conflicting section only, and never by replacing the file: taking
+  the newer file whole drops every edit the branch made elsewhere, and
+  `git diff origin/<default>` then shows just the one change you re-applied, which reads
+  as confirmation. Diff against your own pre-merge commit as well as against the default.
+  ⚠️ **A grep-back COUNT is not an answer in either direction.** Read the matched line:
+  a note that shares a substring with the one that was deleted keeps the count non-zero,
+  and your own bad pattern makes a surviving note read as lost. Three 0s in a row on
+  host#354 were all bad patterns of mine (missing backticks around `` `prerelease` ``, a
+  phrase that spanned a line break, a lower-case search for an upper-case word).
+  Search one short distinctive substring, and know the expected count before you run it.
 
 Worked examples, the sweep's fail-open modes and stacked-PR recovery:
 [`docs/branching.md`](docs/branching.md).
@@ -133,6 +169,16 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
   reset" when the keycodes had shifted, and called a DOOM job "hung" at 35 min and
   cancelled it. 35 min is that job's normal time. Before calling a job stuck, look up
   its normal duration in the job history.
+- ⚠️ **Verify your own correction as hard as the original finding. The fix is usually
+  sound while its CLAIM is wider than its behaviour.** On the release-gate work, four of
+  the eight acted-on findings answered text an earlier round had just corrected rather
+  than the original change: "a refusal changes nothing" when the release was already
+  public, "merge the bump, no further intervention" when the tag still had to be moved.
+  ⚠️ **Re-derive any tally from the API before you
+  write it into a note** — the retro that produced this bullet got the count wrong
+  twice from its own narration. The four claims, and the query:
+  [`docs/review-conventions.md`](docs/review-conventions.md) → *A correction's claim is
+  wider than its behaviour*.
 - ⚠️ **CodeRabbit auto-review is OFF in all PolyKybd repos** (org setting, 2026-10-08).
   Ask with `@coderabbitai review` posted as a COMMENT. The same line in the PR body does
   nothing.

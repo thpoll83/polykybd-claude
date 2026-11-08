@@ -398,3 +398,71 @@ and relative links were adjusted to suit a standalone file.
   above the marker. A marker placed atop the comment block does nothing. On #341
   (2026-10-07, `usb_reset_race.py:92`) this cleared the failed check in one push:
   Sourcery marked the thread addressed and approved the PR.
+
+
+## A correction's claim is wider than its behaviour
+
+Added 2026-11-08 from the release-gate session. The CLAUDE.md bullet is *Verify your
+own correction as hard as the original finding*.
+
+Four of the eight acted-on findings answered text a previous round of the same session
+had just written, not the original change. In each case the code or the fix was right
+and the sentence describing it was wider than what it did:
+
+| what a round claimed | what it actually did |
+|---|---|
+| "a refusal changes nothing" | the release was already public when the gate ran, so the refusal left a public assetless release behind |
+| "leaves every updater's view at once" | an offer already made survives until the next *successful* check (`_pending_release` is cleared only by `_host_no_update()`) |
+| "merge the bump, no further intervention" | the tag still pointed at the pre-bump commit, so it had to be moved |
+| "nothing to withdraw on a tag push" | a force-pushed tag can already have a release on it |
+
+All four came from **host#349 and host#354**, two each, both from Greptile. ⚠️ **The
+5/0/4/2 distribution below counts ALL 11 bot findings, not these four** — qmk#376's five
+were about force-pushing release tags and a failed `sed` read, none of them about a
+correction. An earlier version of this paragraph used the 11-finding spread to describe
+the four, and said "three of the four PRs"; it was wrong twice over.
+
+Two things follow. A round that fixes a documentation defect is the round most likely
+to introduce the next one, so re-read the replacement sentence against the behaviour
+before pushing it. And the rate does not decay with rounds: polykybd-claude#22, the PR
+that recorded this note, drew 8 findings on its first commit, 3 on the commit that fixed
+those, and 7 on the commit that fixed THOSE — six, two and six of them respectively
+defects in its own corrections. Three successive versions of one five-line shell block
+were each wrong in a different way.
+
+To re-derive the count, read the inline threads, not a session summary. ⚠️
+**Filter to bot-authored THREAD ROOTS.** `pulls/<n>/comments` returns your own replies in
+the same list, so the unfiltered length is roughly double the number of findings — the
+first draft of this section shipped that query and reported 22:
+
+```bash
+(
+  set -o pipefail
+  for r in thpoll83/qmk_firmware:376 thpoll83/qmk_firmware:377 \
+           thpoll83/PolyKybdHost:349 thpoll83/PolyKybdHost:354; do
+    repo=${r%:*}; pr=${r#*:}; printf '%s#%s: ' "$repo" "$pr"
+    gh api "repos/$repo/pulls/$pr/comments" --paginate --slurp \
+      | jq '[.[][] | select(.in_reply_to_id == null)
+                   | select(.user.login | endswith("[bot]"))] | length' \
+      || { echo "FAILED for $repo#$pr" >&2; exit 1; }
+  done
+)
+```
+
+⚠️ **`--paginate` without `--slurp` runs the `--jq` once PER PAGE**, so a PR with more
+than one page of comments prints several numbers on one line under a single label, and
+each is a partial count. `--slurp` wraps the pages into an array of arrays, which is why
+the filter starts `.[][]`; it cannot be combined with `gh`'s own `--jq`, so the pages go
+through a separate `jq`.
+
+⚠️ **`pipefail` plus `break` is NOT enough to make a failure visible, and the subshell
+is what fixes it.** A `for` loop exits with the status of the last command it ran, and
+that is the `break` itself, so the loop returned **0** after printing `FAILED` — measured.
+A caller that reads the exit status accepts a partial total as complete. `exit 1` inside
+the `( ... )` reports it; the subshell is there so running the block interactively does
+not close your shell. An earlier version of this section used `break` and was presented
+as verified based only on the success path.
+
+That gives 11: qmk#376 5, host#349 4, host#354 2, qmk#377 0 (verified 2026-11-08). The
+retro's first draft said nine, with five about corrections. Neither number came from
+this query.
