@@ -71,9 +71,14 @@ the backstop if a consolidated note turns out to be missing something.
   status` then says "no upstream", `git rev-list @{u}..HEAD` fails, and a stop hook
   reports "1 unpushed commit and no remote branch" on a branch that is already on the
   remote. Confirm with `git ls-remote origin refs/heads/<branch>` against `git rev-parse
-  HEAD` before believing it, then
-  `git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'` and
-  `git fetch origin <branch>`.
+  HEAD` before believing it, then add a mapping for THAT branch and fetch it:
+  `git config --add remote.origin.fetch
+  '+refs/heads/<branch>:refs/remotes/origin/<branch>'` and
+  `git fetch origin <branch>`. ⚠️ **`--add`, not a plain set**, which exits 5 with
+  "cannot overwrite multiple values with a single value" once the key holds more than
+  one refspec (measured). ⚠️ **Not a `*` wildcard either**: it makes every later
+  `git fetch` and the documented `--unshallow` pull every branch, and qmk_firmware
+  carries over 500 `claude/*` branches.
 - ⚠️ **`merge_pull_request`'s `expectedHeadSha` must be the full 40 characters.**
   A sha rebuilt from an 8-character prefix returns `409 Head branch was modified` and
   merges nothing; a wrong length returns "The sha parameter must be exactly 40

@@ -416,10 +416,19 @@ and the sentence describing it was wider than what it did:
 | "merge the bump, no further intervention" | the tag still pointed at the pre-bump commit, so it had to be moved |
 | "nothing to withdraw on a tag push" | a force-pushed tag can already have a release on it |
 
+All four came from **host#349 and host#354**, two each, both from Greptile. ⚠️ **The
+5/0/4/2 distribution below counts ALL 11 bot findings, not these four** — qmk#376's five
+were about force-pushing release tags and a failed `sed` read, none of them about a
+correction. An earlier version of this paragraph used the 11-finding spread to describe
+the four, and said "three of the four PRs"; it was wrong twice over.
+
 Two things follow. A round that fixes a documentation defect is the round most likely
 to introduce the next one, so re-read the replacement sentence against the behaviour
-before pushing it. And the review rate does not decay: these arrived spread across
-three of the four PRs — qmk#377 drew none — rather than concentrated on the first.
+before pushing it. And the rate does not decay with rounds: polykybd-claude#22, the PR
+that recorded this note, drew 8 findings on its first commit, 3 on the commit that fixed
+those, and 7 on the commit that fixed THOSE — six, two and six of them respectively
+defects in its own corrections. Three successive versions of one five-line shell block
+were each wrong in a different way.
 
 To re-derive the count, read the inline threads, not a session summary. ⚠️
 **Filter to bot-authored THREAD ROOTS.** `pulls/<n>/comments` returns your own replies in

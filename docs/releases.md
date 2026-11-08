@@ -166,20 +166,22 @@ no release.** GitHub documents that endpoint as "Get a published release with th
 specified tag", and documents drafts as listed only to callers with push access ("Only
 users with push access will receive listings for draft releases", *List releases*). So a
 draft carrying that `tag_name` reads as absent there however the call is authenticated.
-Before moving a tag on the strength of a 404, list the releases with a push-access
-credential and look for a draft. ⚠️ **`--paginate` is required**: a repository with
-more than one page of releases can hold the draft on a later page, and the single-page
-form reports no draft:
+⚠️ **And on a PRIVATE repository an unauthorized by-tag call 404s whether or not a
+published release exists**, so the 404 only means "no published release" when the call
+was authorized. Use the push-access credential for both checks, and before moving a tag
+list every release, draft and published:
 
 ```bash
 gh api --paginate "repos/<owner>/<repo>/releases?per_page=100" \
-  --jq '.[] | select(.draft) | .tag_name'
+  --jq '.[] | "\(.draft)\t\(.tag_name)"'
 ```
 
-A failed request here is inconclusive, not evidence that no draft exists, so check the
-exit status before acting on an empty result. What status code the by-tag endpoint
-returns for a draft-only tag is not documented; treat it as unverified rather than
-assuming the 404.
+⚠️ **`--paginate` is required** — a repository with more than one page of releases can
+hold the target on a later page — and ⚠️ **the exit status has to be checked whatever
+the output**, not only when it is empty: a later page can fail after an earlier one has
+printed, so a non-empty listing can still be missing the tag you are looking for. Treat
+any failure as inconclusive. What status code the by-tag endpoint returns for a
+draft-only tag is not documented; treat it as unverified rather than assuming the 404.
 
 ⚠️ **A read timeout only helps if something catches what it raises.** `API_TIMEOUT = 30`
 is passed to every `urlopen()` so that a connection GitHub accepts and then stops
@@ -190,12 +192,13 @@ answering cannot block forever. `release_exists()` and `_get_json()` each end wi
 the release was created. The timeout made that failure louder rather than safer.
 
 ⚠️ **The two failure phases raise DIFFERENT types, so `except OSError` is the one
-catch that covers both.** Measured on Python 3.11.18:
+catch that covers both.** Python 3.11.18; the last column says what each row rests on,
+because only one of them was measured as a timeout:
 
-| phase | what `urlopen()` raises | `URLError`? | `TimeoutError`? | `OSError`? |
-|---|---|---|---|---|
-| connect | `urllib.error.URLError` wrapping the socket error | yes | no | yes |
-| response read | bare `builtins.TimeoutError` | **no** | yes | yes |
+| phase | what `urlopen()` raises | `URLError`? | `TimeoutError`? | `OSError`? | evidence |
+|---|---|---|---|---|---|
+| connect | `urllib.error.URLError` wrapping the socket error | yes | no | yes | measured for a REFUSED connect; the timeout case is derived from `do_open()`, since this container refuses rather than dropping SYN |
+| response read | bare `builtins.TimeoutError` | **no** | yes | yes | measured, with the snippet below |
 
 `do_open()` wraps an `OSError` from `h.request()` as `URLError`, so every connect-phase
 failure arrives as `URLError`; a timeout from `h.getresponse()` is not wrapped and
@@ -212,7 +215,10 @@ connect-phase failure. Reproduce the read timeout with:
 import socket, threading, time, urllib.request
 srv = socket.socket(); srv.bind(("127.0.0.1", 0)); srv.listen(1)
 threading.Thread(target=lambda: (srv.accept(), time.sleep(5)), daemon=True).start()
-urllib.request.urlopen(f"http://127.0.0.1:{srv.getsockname()[1]}/", timeout=1)
+# ProxyHandler({}) is required: with http_proxy set, urlopen() sends the request to the
+# proxy instead of the test server and a proxy error replaces the timeout.
+urllib.request.build_opener(urllib.request.ProxyHandler({})).open(
+    f"http://127.0.0.1:{srv.getsockname()[1]}/", timeout=1)
 ```
 
 Unfixed as of 2026-11-08. The fix must be applied to all three copies in one change,
