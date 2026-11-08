@@ -146,3 +146,29 @@ in [`docs/releases.md`](../../PolyKybdHost/docs/releases.md).
   stage the notes on the branch and hand the user `python scripts/publish_release.py`.
   The same proxy 403s on branch **deletion**, so don't create scratch branches you
   can't clean up.
+
+
+## publish_release.py: a lookup is three-valued, and a timeout needs an `except`
+
+Added 2026-11-08 from the release-gate session (qmk#376, host#349, host#354). Not part
+of the verbatim archives above.
+
+Three lookups answer in **three** values, and collapsing any of them to two is how the
+check stops checking: `release_exists()` returns `True`/`False`/`None`, `tag_commit()`
+returns a sha/`""`/`None`, and the host `release.yml` withdrawal step reports
+`yes`/`no`/`unknown`. **Only a 404 means "confirmed absent".** A 401, a 403, a 5xx or a
+timeout all mean "cannot tell", and the caller must then take the stricter path. Each
+of the three was first written with two values and corrected after a review found it
+(Revix and Greptile on wincompose#25, Greptile on host#318 and qmk#356).
+
+⚠️ **A read timeout only helps if something catches what it raises.** `API_TIMEOUT = 30`
+is passed to every `urlopen()` so that a connection GitHub accepts and then stops
+answering cannot block forever. `release_exists()` and `_get_json()` each end with
+`except Exception: return None`, so a timeout there becomes their "cannot tell" value.
+`api()` catches only `urllib.error.HTTPError`, which does **not** cover `URLError`, so a
+timeout or a connection reset raises an uncaught traceback — on the create path that is
+*after* the POST has been sent, with no way to tell whether the release was created. The
+timeout made that failure louder rather than safer.
+
+Unfixed as of 2026-11-08. The fix must be applied to all three copies in one change,
+because nothing in CI compares them (see *Files kept byte-identical across repos*).

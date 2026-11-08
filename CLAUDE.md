@@ -59,6 +59,16 @@ the backstop if a consolidated note turns out to be missing something.
   or that a review finding does not reproduce: `git log --oneline -1`, then
   `git fetch origin <branch> && git log --oneline HEAD..FETCH_HEAD`. Work you remember
   doing that left no trace is a checkout problem first and a code problem second.
+- ⚠️ **A transient 500 is not a capability limit.** `merge_pull_request` returned
+  500 with an empty body four times in one session while every read worked, and the
+  identical call succeeded first try two days later. The 403s above are the real limits
+  and they name themselves. Retry in a later turn before telling the user this session
+  type cannot do something.
+- ⚠️ **`merge_pull_request`'s `expectedHeadSha` must be the full 40 characters.**
+  A sha rebuilt from an 8-character prefix returns `409 Head branch was modified` and
+  merges nothing; a wrong length returns "The sha parameter must be exactly 40
+  characters". Read `.head.sha` from `pull_request_read` for each merge rather than
+  reusing a short sha from a commit listing.
 - **Chromium is installed headless** (`/opt/pw-browsers/chromium`, also through
   Playwright). Look at generated HTML, SVG and rendered pages instead of reasoning
   about the markup.
@@ -107,7 +117,15 @@ Detail and the incidents behind these: [`docs/web-session.md`](docs/web-session.
 - ⚠️ **A CLAUDE.md merge conflict is either addition beside addition (keep both) or
   supersession (the newer version replaces the older one completely).** After resolving,
   grep each of your notes back by name. Taking the whole of one side silently deletes
-  anything that shared the conflict block.
+  anything that shared the conflict block. ⚠️ **Supersession runs both ways: the
+  default branch may have PRUNED the section you edited**, so neither side can be taken
+  whole. Take the newer file, re-apply only your semantic change, then
+  `git diff origin/<default>` to show exactly which lines differ. ⚠️ **A 0 from
+  your own grep-back is more often a bad pattern than a lost note.** Three in a row on
+  host#354 were all mine: missing backticks around `` `prerelease` ``, a phrase that
+  spanned a line break, and a lower-case search for an upper-case word. Search one short
+  distinctive substring, and check the pattern finds the line in the pre-merge file
+  before you trust a 0.
 
 Worked examples, the sweep's fail-open modes and stacked-PR recovery:
 [`docs/branching.md`](docs/branching.md).
@@ -133,6 +151,18 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
   reset" when the keycodes had shifted, and called a DOOM job "hung" at 35 min and
   cancelled it. 35 min is that job's normal time. Before calling a job stuck, look up
   its normal duration in the job history.
+- ⚠️ **Verify your own correction as hard as the original finding. The fix is
+  usually sound while its CLAIM is wider than its behaviour.** Of 11 bot findings on the
+  release-gate work (qmk#376, qmk#377, host#349, host#354), 8 were acted on, and four of
+  those answered text an earlier round had just corrected rather than the original
+  change: "a refusal changes nothing" when the release was already public, and "merge
+  the bump, no further intervention" when the tag still had to be moved. The rate did
+  not fall across rounds. ⚠️ **The same drift reaches your own report**: that
+  session's retro first put the count at nine findings with five about corrections, and
+  the PR data says 11 and four. Re-read the primary source before writing a tally into a
+  note. All four, and the query that re-derives the count:
+  [`docs/review-conventions.md`](docs/review-conventions.md) → *A correction's claim is
+  wider than its behaviour*.
 - ⚠️ **CodeRabbit auto-review is OFF in all PolyKybd repos** (org setting, 2026-10-08).
   Ask with `@coderabbitai review` posted as a COMMENT. The same line in the PR body does
   nothing.
