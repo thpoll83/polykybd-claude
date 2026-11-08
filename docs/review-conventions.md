@@ -427,24 +427,32 @@ the same list, so the unfiltered length is roughly double the number of findings
 first draft of this section shipped that query and reported 22:
 
 ```bash
-set -o pipefail
-for r in thpoll83/qmk_firmware:376 thpoll83/qmk_firmware:377 \
-         thpoll83/PolyKybdHost:349 thpoll83/PolyKybdHost:354; do
-  repo=${r%:*}; pr=${r#*:}; printf '%s#%s: ' "$repo" "$pr"
-  gh api "repos/$repo/pulls/$pr/comments" --paginate --slurp \
-    | jq '[.[][] | select(.in_reply_to_id == null)
-                 | select(.user.login | endswith("[bot]"))] | length' \
-    || { echo "FAILED for $repo#$pr"; break; }
-done
+(
+  set -o pipefail
+  for r in thpoll83/qmk_firmware:376 thpoll83/qmk_firmware:377 \
+           thpoll83/PolyKybdHost:349 thpoll83/PolyKybdHost:354; do
+    repo=${r%:*}; pr=${r#*:}; printf '%s#%s: ' "$repo" "$pr"
+    gh api "repos/$repo/pulls/$pr/comments" --paginate --slurp \
+      | jq '[.[][] | select(.in_reply_to_id == null)
+                   | select(.user.login | endswith("[bot]"))] | length' \
+      || { echo "FAILED for $repo#$pr" >&2; exit 1; }
+  done
+)
 ```
 
 ⚠️ **`--paginate` without `--slurp` runs the `--jq` once PER PAGE**, so a PR with more
 than one page of comments prints several numbers on one line under a single label, and
 each is a partial count. `--slurp` wraps the pages into an array of arrays, which is why
 the filter starts `.[][]`; it cannot be combined with `gh`'s own `--jq`, so the pages go
-through a separate `jq`. The `pipefail` and the `break` are there because a failed
-request otherwise prints nothing for that PR and the loop carries on to a total that
-looks complete.
+through a separate `jq`.
+
+⚠️ **`pipefail` plus `break` is NOT enough to make a failure visible, and the subshell
+is what fixes it.** A `for` loop exits with the status of the last command it ran, and
+that is the `break` itself, so the loop returned **0** after printing `FAILED` — measured.
+A caller that reads the exit status accepts a partial total as complete. `exit 1` inside
+the `( ... )` reports it; the subshell is there so running the block interactively does
+not close your shell. An earlier version of this section used `break` and was presented
+as verified on the strength of the success path alone.
 
 That gives 11: qmk#376 5, host#349 4, host#354 2, qmk#377 0 (verified 2026-11-08). The
 retro's first draft said nine, with five about corrections. Neither number came from

@@ -167,10 +167,19 @@ specified tag", and documents drafts as listed only to callers with push access 
 users with push access will receive listings for draft releases", *List releases*). So a
 draft carrying that `tag_name` reads as absent there however the call is authenticated.
 Before moving a tag on the strength of a 404, list the releases with a push-access
-credential and look for a draft:
-`gh api "repos/<owner>/<repo>/releases?per_page=100" --jq '[.[] | select(.draft) |
-.tag_name]'`. What status code the by-tag endpoint returns for a draft-only tag is not
-documented; treat it as unverified rather than assuming the 404.
+credential and look for a draft. ⚠️ **`--paginate` is required**: a repository with
+more than one page of releases can hold the draft on a later page, and the single-page
+form reports no draft:
+
+```bash
+gh api --paginate "repos/<owner>/<repo>/releases?per_page=100" \
+  --jq '.[] | select(.draft) | .tag_name'
+```
+
+A failed request here is inconclusive, not evidence that no draft exists, so check the
+exit status before acting on an empty result. What status code the by-tag endpoint
+returns for a draft-only tag is not documented; treat it as unverified rather than
+assuming the 404.
 
 ⚠️ **A read timeout only helps if something catches what it raises.** `API_TIMEOUT = 30`
 is passed to every `urlopen()` so that a connection GitHub accepts and then stops
@@ -180,13 +189,24 @@ answering cannot block forever. `release_exists()` and `_get_json()` each end wi
 — on the create path that is *after* the POST has been sent, with no way to tell whether
 the release was created. The timeout made that failure louder rather than safer.
 
-⚠️ **Catching `URLError` would NOT be enough.** Measured on Python 3.11.18 against a
-local socket that accepts and then stalls, both a connect stall and a read timeout raise
-a bare `builtins.TimeoutError`, and `isinstance(e, urllib.error.URLError)` is `False` for
-each. (Since 3.10 `socket.timeout` is an alias of `TimeoutError`, an `OSError` subclass,
-and it propagates straight out of `urlopen()` rather than being wrapped.) `except
-Exception` is what makes the two sibling lookups safe; a fix for `api()` needs
-`OSError`/`Exception`, not `URLError`. Reproduce with:
+⚠️ **The two failure phases raise DIFFERENT types, so `except OSError` is the one
+catch that covers both.** Measured on Python 3.11.18:
+
+| phase | what `urlopen()` raises | `URLError`? | `TimeoutError`? | `OSError`? |
+|---|---|---|---|---|
+| connect | `urllib.error.URLError` wrapping the socket error | yes | no | yes |
+| response read | bare `builtins.TimeoutError` | **no** | yes | yes |
+
+`do_open()` wraps an `OSError` from `h.request()` as `URLError`, so every connect-phase
+failure arrives as `URLError`; a timeout from `h.getresponse()` is not wrapped and
+arrives as `TimeoutError` (since 3.10 `socket.timeout` is an alias of it). So catching
+`URLError` alone misses the read timeout, and catching `TimeoutError` alone misses the
+connect failure. `except Exception` is what makes the two sibling lookups safe; a fix for
+`api()` needs `OSError` or wider.
+
+⚠️ **An earlier version of this note claimed both phases raise a bare `TimeoutError`,
+from a test whose server called `accept()` in both branches** — so neither case was a
+connect-phase failure. Reproduce the read timeout with:
 
 ```python
 import socket, threading, time, urllib.request
