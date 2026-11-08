@@ -78,7 +78,7 @@ the backstop if a consolidated note turns out to be missing something.
   "cannot overwrite multiple values with a single value" once the key holds more than
   one refspec (measured). ⚠️ **Not a `*` wildcard either**: it makes every later
   `git fetch` and the documented `--unshallow` pull every branch, and qmk_firmware
-  carries over 500 `claude/*` branches.
+  has over 500 `claude/*` branches.
 - ⚠️ **`merge_pull_request`'s `expectedHeadSha` must be the full 40 characters.**
   A sha rebuilt from an 8-character prefix returns `409 Head branch was modified` and
   merges nothing; a wrong length returns "The sha parameter must be exactly 40
@@ -142,8 +142,7 @@ Detail and the incidents behind these: [`docs/web-session.md`](docs/web-session.
   a note that shares a substring with the one that was deleted keeps the count non-zero,
   and your own bad pattern makes a surviving note read as lost. Three 0s in a row on
   host#354 were all bad patterns of mine (missing backticks around `` `prerelease` ``, a
-  phrase that spanned a line break, a lower-case search for an upper-case word), and on
-  polykybd-claude#22 a count of 2 where 3 was expected was the same line-break shape.
+  phrase that spanned a line break, a lower-case search for an upper-case word).
   Search one short distinctive substring, and know the expected count before you run it.
 
 Worked examples, the sweep's fail-open modes and stacked-PR recovery:
@@ -175,7 +174,7 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
   the eight acted-on findings answered text an earlier round had just corrected rather
   than the original change: "a refusal changes nothing" when the release was already
   public, "merge the bump, no further intervention" when the tag still had to be moved.
-  The rate did not fall across rounds. ⚠️ **Re-derive any tally from the API before you
+  ⚠️ **Re-derive any tally from the API before you
   write it into a note** — the retro that produced this bullet got the count wrong
   twice from its own narration. The four claims, and the query:
   [`docs/review-conventions.md`](docs/review-conventions.md) → *A correction's claim is

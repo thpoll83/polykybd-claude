@@ -461,7 +461,7 @@ that is the `break` itself, so the loop returned **0** after printing `FAILED` â
 A caller that reads the exit status accepts a partial total as complete. `exit 1` inside
 the `( ... )` reports it; the subshell is there so running the block interactively does
 not close your shell. An earlier version of this section used `break` and was presented
-as verified on the strength of the success path alone.
+as verified based only on the success path.
 
 That gives 11: qmk#376 5, host#349 4, host#354 2, qmk#377 0 (verified 2026-11-08). The
 retro's first draft said nine, with five about corrections. Neither number came from
