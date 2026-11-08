@@ -161,14 +161,39 @@ timeout all mean "cannot tell", and the caller must then take the stricter path.
 of the three was first written with two values and corrected after a review found it
 (Revix and Greptile on wincompose#25, Greptile on host#318 and qmk#356).
 
+⚠️ **A 404 from `releases/tags/<tag>` means no PUBLISHED release, which is weaker than
+no release.** GitHub documents that endpoint as "Get a published release with the
+specified tag", and documents drafts as listed only to callers with push access ("Only
+users with push access will receive listings for draft releases", *List releases*). So a
+draft carrying that `tag_name` reads as absent there however the call is authenticated.
+Before moving a tag on the strength of a 404, list the releases with a push-access
+credential and look for a draft:
+`gh api "repos/<owner>/<repo>/releases?per_page=100" --jq '[.[] | select(.draft) |
+.tag_name]'`. What status code the by-tag endpoint returns for a draft-only tag is not
+documented; treat it as unverified rather than assuming the 404.
+
 ⚠️ **A read timeout only helps if something catches what it raises.** `API_TIMEOUT = 30`
 is passed to every `urlopen()` so that a connection GitHub accepts and then stops
 answering cannot block forever. `release_exists()` and `_get_json()` each end with
 `except Exception: return None`, so a timeout there becomes their "cannot tell" value.
-`api()` catches only `urllib.error.HTTPError`, which does **not** cover `URLError`, so a
-timeout or a connection reset raises an uncaught traceback — on the create path that is
-*after* the POST has been sent, with no way to tell whether the release was created. The
-timeout made that failure louder rather than safer.
+`api()` catches only `urllib.error.HTTPError`, so a timeout raises an uncaught traceback
+— on the create path that is *after* the POST has been sent, with no way to tell whether
+the release was created. The timeout made that failure louder rather than safer.
+
+⚠️ **Catching `URLError` would NOT be enough.** Measured on Python 3.11.18 against a
+local socket that accepts and then stalls, both a connect stall and a read timeout raise
+a bare `builtins.TimeoutError`, and `isinstance(e, urllib.error.URLError)` is `False` for
+each. (Since 3.10 `socket.timeout` is an alias of `TimeoutError`, an `OSError` subclass,
+and it propagates straight out of `urlopen()` rather than being wrapped.) `except
+Exception` is what makes the two sibling lookups safe; a fix for `api()` needs
+`OSError`/`Exception`, not `URLError`. Reproduce with:
+
+```python
+import socket, threading, time, urllib.request
+srv = socket.socket(); srv.bind(("127.0.0.1", 0)); srv.listen(1)
+threading.Thread(target=lambda: (srv.accept(), time.sleep(5)), daemon=True).start()
+urllib.request.urlopen(f"http://127.0.0.1:{srv.getsockname()[1]}/", timeout=1)
+```
 
 Unfixed as of 2026-11-08. The fix must be applied to all three copies in one change,
 because nothing in CI compares them (see *Files kept byte-identical across repos*).

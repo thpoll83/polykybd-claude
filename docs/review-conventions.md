@@ -419,7 +419,7 @@ and the sentence describing it was wider than what it did:
 Two things follow. A round that fixes a documentation defect is the round most likely
 to introduce the next one, so re-read the replacement sentence against the behaviour
 before pushing it. And the review rate does not decay: these arrived spread across
-four PRs, not concentrated on the first.
+three of the four PRs — qmk#377 drew none — rather than concentrated on the first.
 
 To re-derive the count, read the inline threads, not a session summary. ⚠️
 **Filter to bot-authored THREAD ROOTS.** `pulls/<n>/comments` returns your own replies in
@@ -427,14 +427,24 @@ the same list, so the unfiltered length is roughly double the number of findings
 first draft of this section shipped that query and reported 22:
 
 ```bash
+set -o pipefail
 for r in thpoll83/qmk_firmware:376 thpoll83/qmk_firmware:377 \
          thpoll83/PolyKybdHost:349 thpoll83/PolyKybdHost:354; do
   repo=${r%:*}; pr=${r#*:}; printf '%s#%s: ' "$repo" "$pr"
-  gh api "repos/$repo/pulls/$pr/comments" --paginate \
-    --jq '[.[] | select(.in_reply_to_id == null)
-               | select(.user.login | endswith("[bot]"))] | length'
+  gh api "repos/$repo/pulls/$pr/comments" --paginate --slurp \
+    | jq '[.[][] | select(.in_reply_to_id == null)
+                 | select(.user.login | endswith("[bot]"))] | length' \
+    || { echo "FAILED for $repo#$pr"; break; }
 done
 ```
+
+⚠️ **`--paginate` without `--slurp` runs the `--jq` once PER PAGE**, so a PR with more
+than one page of comments prints several numbers on one line under a single label, and
+each is a partial count. `--slurp` wraps the pages into an array of arrays, which is why
+the filter starts `.[][]`; it cannot be combined with `gh`'s own `--jq`, so the pages go
+through a separate `jq`. The `pipefail` and the `break` are there because a failed
+request otherwise prints nothing for that PR and the loop carries on to a total that
+looks complete.
 
 That gives 11: qmk#376 5, host#349 4, host#354 2, qmk#377 0 (verified 2026-11-08). The
 retro's first draft said nine, with five about corrections. Neither number came from
