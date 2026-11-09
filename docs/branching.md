@@ -6,7 +6,7 @@ Merged 2026-10-10 from `qmk_firmware/keyboards/polykybd/BRANCHING.md` and
 ## Branching (all PolyKybd repos)
 
 - **Give every branch a name that hints at its content** (a short descriptive slug, e.g. `claude/fix-slave-layer-after-fw-apply`, not just the auto-generated `claude/<random-scientist>-<id>`) so the branch list reads as a changelog.
-- **Always start new work on a FRESH branch cut from the updated default branch — never keep committing to a branch whose PR has already merged.** Once a PR is merged, that branch is done: `git fetch origin PolyKybd` then `git checkout -b claude/<new-slug> origin/PolyKybd` for the next change. Cherry-pick only the still-unmerged commits onto the fresh branch if needed. This keeps each PR a clean, focused diff against the current default (**`PolyKybd`** here; `main` in the host/rig repos) and avoids a new PR accidentally re-including already-merged commits.
+- **Always start new work on a FRESH branch cut from the updated default branch — never keep committing to a branch whose PR has already merged.** Once a PR is merged, that branch is done: `git fetch origin PolyKybd` then `git checkout -b claude/<new-slug> origin/PolyKybd` for the next change. Cherry-pick only the still-unmerged commits onto the fresh branch if needed. This keeps each PR a clean, focused diff against the current default (**`PolyKybd`** here; `main` in the host/rig repos) and avoids a new PR accidentally re-including already-merged commits. The one exception is a session's designated branch that must keep its name: [*Reusing a squash-merged branch when a force push is refused*](#reusing-a-squash-merged-branch-when-a-force-push-is-refused).
 - ⚠️ **A cross-repo feature can leave one repo with commits PUSHED and NO PR — and
   nothing surfaces it.** A PolyKybd feature routinely spans 4–6 repos (firmware,
   host, docs, rig, AdafruitGFX, hardware), and every "is everything saved?" check
@@ -161,7 +161,7 @@ and relative links were adjusted to suit a standalone file.
 ## More branching rules, with worked examples
 
 - **Give every branch a name that hints at its content.** When creating a branch, append a short, descriptive slug describing the change (e.g. `claude/fix-firmware-update-menu-daemon-mode`, not just the auto-generated `claude/<random-scientist>-<id>`). The random scientist/id suffix from Claude Code on the web is auto-assigned server-side and can't always be overridden mid-session, but whenever a branch name is chosen by us, make it self-explanatory so the branch list reads as a changelog.
-- **Always start new work on a FRESH branch cut from the updated default branch — never keep committing to a branch whose PR has already merged.** Once a PR is merged, that branch is done: `git fetch origin <default>` (and for the next piece of work `git checkout -b claude/<new-slug> origin/<default>`). Cherry-pick only the still-unmerged commits onto the fresh branch if needed. This keeps each PR a clean, focused diff against the current default (`main` for host/rig, `PolyKybd` for the firmware) and avoids a new PR accidentally re-including already-merged commits.
+- **Always start new work on a FRESH branch cut from the updated default branch — never keep committing to a branch whose PR has already merged.** Once a PR is merged, that branch is done: `git fetch origin <default>` (and for the next piece of work `git checkout -b claude/<new-slug> origin/<default>`). Cherry-pick only the still-unmerged commits onto the fresh branch if needed. This keeps each PR a clean, focused diff against the current default (`main` for host/rig, `PolyKybd` for the firmware) and avoids a new PR accidentally re-including already-merged commits. The one exception is a session's designated branch that must keep its name: [*Reusing a squash-merged branch when a force push is refused*](#reusing-a-squash-merged-branch-when-a-force-push-is-refused).
   - ⚠️ **Violating this is INVISIBLE — a push to a branch whose PR has already
     merged SUCCEEDS and orphans the commit.** git reports an ordinary fast-forward,
     GitHub shows nothing (a merged PR does not reopen, update, or list the new
@@ -333,6 +333,31 @@ that `git diff --stat origin/main` shows exactly the stacked PR's own
 additions/deletions before pushing. Seen on the firmware's #324 → #325 (2026-10-01):
 seven conflicted files, of which only `config.h` differed, by the version auto-bump,
 and the result matched the PR's +374/−104.
+
+### Reusing a squash-merged branch when a force push is refused
+
+This is an exception to the fresh-branch rule for one case only: the session
+instructions name a designated branch that must keep its name, and its PR was
+squash-merged. Its history is then not an ancestor of the default branch, so resetting
+it needs a force push, and the auto-mode classifier refused that push (2026-11-09, qmk
+`ccr-…` after #420). A merge commit that takes the default branch's tree, with both
+heads as parents, makes the branch a descendant of both without a force push:
+
+```bash
+git fetch origin <default> &&
+  git fetch origin "+refs/heads/<branch>:refs/remotes/origin/<branch>"   # stop if either fails
+git status --short                                  # nothing unrelated staged or modified
+git log --oneline origin/<branch>..<branch>         # local commits not pushed: keep them first
+git log -p origin/<default>..origin/<branch>        # every change here must already be in <default>
+M=$(git commit-tree "origin/<default>^{tree}" -p origin/<branch> -p origin/<default> \
+      -m "Merge <default> into the branch") && git checkout -B <branch> "$M"
+```
+
+The merge keeps the default branch's tree and discards every other difference, so
+check the last log: a squash-merged commit's change is in `<default>`, an unmerged one
+is not, and `git diff --stat` cannot tell them apart when both sides changed a file.
+Then commit the new work, push normally, and open a NEW pull request; the old one is
+merged and does not pick up the commits. Its diff shows only the new work (qmk#421).
 
 ### A stacked PR that is ONE commit on your own branch: rebase it instead
 
