@@ -78,8 +78,13 @@ export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"   # container: q
    ⚠️ leave `EECONFIG_USER_DATA_VERSION` at 159. QMK's default version is the size,
    and a version mismatch zeroes the whole settings block; the zeroed
    `keymap_layers_fmt` then discards the stored keymap and macros. #413 and #418
-   each did that on upgrade, until qmk#421 fixed the version. A board that never
-   wrote the new byte reads 0, so 0 must be the field's default.
+   each did that on upgrade, until qmk#421 fixed the version. ⚠️ Do not assume the
+   new byte reads 0: on a board older than 2026-08-13 the stored keymap began at
+   offset 128, so offsets 159 and up can hold old keymap bytes. Make 0 the field's
+   "never chosen" value AND add it to the `tail_fmt` reset (`stamp_tail_fmt()` in
+   `state_store.c`, the `TAIL_FMT_OK` check in `poly_keymap.c`, qmk#422), which zeroes
+   the tail bytes once on a board without the marker. Fields after `tail_fmt`
+   (offset 162) need their own marker.
 5. Build **both** variants — `config.h` is shared:
 
 ```bash

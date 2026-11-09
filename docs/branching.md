@@ -336,22 +336,28 @@ and the result matched the PR's +374/−104.
 
 ### Reusing a squash-merged branch when a force push is refused
 
-The session's designated branch must keep its name, but after a squash merge its
-history is not an ancestor of the default branch, so resetting it needs a force push.
-The auto-mode classifier refused that push (2026-11-09, qmk `ccr-…` after #420). A
-merge commit that takes the default branch's tree, with both heads as parents, makes
-the branch a descendant of both without a force push:
+This is an exception to the fresh-branch rule for one case only: the session
+instructions name a designated branch that must keep its name, and its PR was
+squash-merged. Its history is then not an ancestor of the default branch, so resetting
+it needs a force push, and the auto-mode classifier refused that push (2026-11-09, qmk
+`ccr-…` after #420). A merge commit that takes the default branch's tree, with both
+heads as parents, makes the branch a descendant of both without a force push:
 
 ```bash
-git fetch origin <default> <branch>
-git diff --stat origin/<default> origin/<branch>   # only the default's newer work, nothing of yours unmerged
-M=$(git commit-tree "origin/<default>^{tree}" -p origin/<branch> -p origin/<default> -m "Merge <default> into the branch")
-git checkout -B <branch> $M          # then commit the new work and push normally
+git fetch origin <default> &&
+  git fetch origin "+refs/heads/<branch>:refs/remotes/origin/<branch>"   # stop if either fails
+git status --short                                  # nothing unrelated staged or modified
+git log --oneline origin/<branch>..<branch>         # local commits not pushed: keep them first
+git log -p origin/<default>..origin/<branch>        # every change here must already be in <default>
+M=$(git commit-tree "origin/<default>^{tree}" -p origin/<branch> -p origin/<default> \
+      -m "Merge <default> into the branch") && git checkout -B <branch> "$M"
 ```
 
-Check the diff first: the merge throws away every difference from the default
-branch, so an unmerged commit on the old branch would be lost. The new PR's diff then
-shows only the new work (qmk#421).
+The merge keeps the default branch's tree and discards every other difference, so
+check the last log: a squash-merged commit's change is in `<default>`, an unmerged one
+is not, and `git diff --stat` cannot tell them apart when both sides changed a file.
+Then commit the new work, push normally, and open a NEW pull request; the old one is
+merged and does not pick up the commits. Its diff shows only the new work (qmk#421).
 
 ### A stacked PR that is ONE commit on your own branch: rebase it instead
 
