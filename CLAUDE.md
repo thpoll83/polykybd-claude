@@ -116,7 +116,9 @@ Detail and the incidents behind these: [`docs/web-session.md`](docs/web-session.
 
 - **Start every piece of work on a fresh branch cut from the updated default branch**
   (table above), with a name that says what it is. Once a PR is merged its branch is
-  done. A push to it succeeds and orphans the commit.
+  done. A push to it succeeds and orphans the commit. The one exception is a session's
+  designated branch that must keep its name: `docs/branching.md` → *Reusing a
+  squash-merged branch when a force push is refused*.
 - ⚠️ **A cross-repo feature can leave one repo with commits pushed and NO PR.** Every
   local check passes on that repo. "Commits ahead" cannot answer it either, since a
   squash-merged branch shows as ahead forever. Only a GitHub query for an existing PR
