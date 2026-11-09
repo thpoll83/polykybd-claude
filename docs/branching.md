@@ -334,6 +334,25 @@ additions/deletions before pushing. Seen on the firmware's #324 → #325 (2026-1
 seven conflicted files, of which only `config.h` differed, by the version auto-bump,
 and the result matched the PR's +374/−104.
 
+### Reusing a squash-merged branch when a force push is refused
+
+The session's designated branch must keep its name, but after a squash merge its
+history is not an ancestor of the default branch, so resetting it needs a force push.
+The auto-mode classifier refused that push (2026-11-09, qmk `ccr-…` after #420). A
+merge commit that takes the default branch's tree, with both heads as parents, makes
+the branch a descendant of both without a force push:
+
+```bash
+git fetch origin <default> <branch>
+git diff --stat origin/<default> origin/<branch>   # only the default's newer work, nothing of yours unmerged
+M=$(git commit-tree "origin/<default>^{tree}" -p origin/<branch> -p origin/<default> -m "Merge <default> into the branch")
+git checkout -B <branch> $M          # then commit the new work and push normally
+```
+
+Check the diff first: the merge throws away every difference from the default
+branch, so an unmerged commit on the old branch would be lost. The new PR's diff then
+shows only the new work (qmk#421).
+
 ### A stacked PR that is ONE commit on your own branch: rebase it instead
 
 When the stacked branch is yours and carries a single commit, skip the per-file merge
