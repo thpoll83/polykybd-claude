@@ -195,6 +195,11 @@ Worked examples, the sweep's fail-open modes and stacked-PR recovery:
   object at all. Check `get_reviews` and the summary comment's `📥 Commits` range.
   Greptile and Sourcery are out of credit on some repos and still post convincing
   summaries.
+- ⚠️ **A green CodeQL check is not "no findings".** On a host PR that adds or changes
+  Python, read the review comments for `github-advanced-security[bot]` before merging.
+  host#719 merged on a green `CodeQL` and `Analyze Python`, and three findings arrived
+  as review comments a minute later (fixed in #721, 2026-11-07). Detail:
+  `triage-pr-review`.
 - ⚠️ **Raise a new LIMIT with the maintainer before writing it into code or docs**
   (maintainer's rule, 2026-10-09): a cap, bound, ceiling or size. An unmeasured 48-icon (#240)
   cap per app cut Kate's F1, F2 and Find in Files, and two replacements guessed on the

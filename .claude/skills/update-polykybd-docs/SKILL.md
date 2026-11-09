@@ -105,6 +105,12 @@ menus (`host.py`), `polyctl` subcommands (`polyhost/cli/polyctl.py`) and setting
    (Docs are their own PR — do this even mid-firmware-work.)
 2. **Find the affected page(s)** from the map above; grep the docs for the old
    fact if you're correcting drift (`grep -rn "PROTOCOL_VERSION 3" src/`).
+   Before a page names the version a feature needs, confirm the feature is IN that
+   published release: list the releases (`gh api repos/<owner>/<repo>/releases
+   --jq '.[0:3][].tag_name'`), then check each file the feature added at the tag,
+   `gh api "repos/<owner>/<repo>/contents/<path>?ref=<tag>" --jq .sha`. A 404 means
+   the feature is not in that release. docs#159 named host 1.20.0 this way: the
+   release was published the same afternoon and held all 7 files.
 3. **Edit / add** the page(s). For a new page, add the `slug` to the sidebar in
    `astro.config.mjs`; add a cross-link from a related page.
 4. **Verify** (see below).
