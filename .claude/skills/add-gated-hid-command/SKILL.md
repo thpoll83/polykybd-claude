@@ -167,8 +167,10 @@ make test:<name>
   would call new (see Releases in `polykybd-claude/CLAUDE.md`). A label
   applied later races the merge and loses; `create_pull_request` cannot set labels,
   so follow it immediately with `issue_write` + `labels:`.
-- **Ship the two repos together**, and say so in both PR bodies. Which order is safe
-  depends on the change; work it out explicitly rather than assuming.
+- **Ship the two repos together**, and say so in both PR bodies. Publish the host
+  release first (`polykybd-claude/CLAUDE.md` → Releases): a new host gates the feature
+  off on older firmware, while an older host with new firmware leaves it off without a
+  message.
 
 ## Verify before you call it done
 

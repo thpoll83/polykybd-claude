@@ -406,11 +406,13 @@ was byte-identical to the head CI had tested.
   local check passes on that repo. "Commits ahead" cannot answer it either, since a
   squash-merged branch shows as ahead forever. Only a GitHub query for an existing PR
   can. The `cross-repo-pr-sweep` skill runs it.
-- ⚠️ **A merged badge is not proof the work reached the default branch.** Check
-  `git merge-base --is-ancestor <head> origin/<default>`, and confirm by content
-  (`git cat-file -e origin/<default>:<a file it added>`). A stacked PR merged within a
-  minute of its base merges into the base's branch, and neither PR's content reaches the
-  default. Recovery is the `re-land-orphaned-pr` skill (in PolyKybdHost).
+- ⚠️ **A merged badge is not proof the work reached the default branch.** Confirm by
+  content: every file the PR changed must match on `origin/<default>`
+  (`git diff <pr-head> origin/<default> -- <its files>`; `git cat-file -e` for a file it
+  added). `git merge-base --is-ancestor <head> origin/<default>` answers only for a merge
+  commit, because a squash-merged head is never an ancestor. A stacked PR merged within a
+  minute of its base merges into the base's branch: the base reaches the default, the
+  stacked PR's content does not. Recovery is the `re-land-orphaned-pr` skill (in PolyKybdHost).
 - ⚠️ **A stacked PR is NOT retargeted when its base merges.** GitHub does that only
   when the base branch is deleted, and merged branches are kept here. Retarget it
   yourself (`update_pull_request base=<default>`), then merge it.

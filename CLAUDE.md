@@ -75,8 +75,9 @@ Detail and worked examples: [`docs/branching.md`](docs/branching.md).
   branch is done; a push to it orphans the commit.
 - ⚠️ A cross-repo feature can leave one repo with commits pushed and no PR. Only a GitHub
   query finds it: the `cross-repo-pr-sweep` skill.
-- ⚠️ A merged badge is not proof the work reached the default branch. Check
-  `git merge-base --is-ancestor <head> origin/<default>` and a file it added.
+- ⚠️ A merged badge is not proof the work reached the default branch. Check its changes
+  on `origin/<default>` by content. `git merge-base --is-ancestor` answers only for a
+  merge commit: a squash-merged head is never an ancestor.
 - ⚠️ A stacked PR is not retargeted when its base merges. Retarget it yourself.
 - ⚠️ In a merge conflict on a rules file, resolve the conflicting section only, never by
   taking a whole side. Then grep each of your notes back by a short distinct substring.
@@ -157,7 +158,7 @@ Detail and incidents: [`docs/releases.md`](docs/releases.md). The
 - ⚠️ A docs PR ships when it merges. A page about new behaviour waits for the release, or
   names the version that gets published (the staged `release-notes/<tag>.md` if not out).
 - ⚠️ Read the published releases before you write any version:
-  `gh api repos/<owner>/<repo>/releases --jq '.[0].tag_name'`. Before handing over the
+  `gh api repos/<owner>/<repo>/releases/latest --jq .tag_name`. Before handing over the
   publish command, fold every merge since the last published tag into the notes.
 
 ## What costs context

@@ -267,7 +267,8 @@ firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
   the release is not out yet, write the version the staged notes name
   (`release-notes/<tag>.md`), and correct it if a merge moves the release.
 - ⚠️ **Read the PUBLISHED releases before you write or restage any version**:
-  `gh api repos/<owner>/<repo>/releases --jq '.[0].tag_name'`. A session summary or
+  `gh api repos/<owner>/<repo>/releases/latest --jq .tag_name` (the `/releases` list also
+  returns drafts, so its first entry can be an unpublished tag). A session summary or
   your memory of "not released yet" is not evidence. On 2026-11-04 a summary said host
   1.17.82 and firmware 1.9.15 were unpublished when both had been published that
   morning. The session replaced their notes on `release-notes` and moved the docs
