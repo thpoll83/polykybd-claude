@@ -390,3 +390,47 @@ If the squash itself conflicts (a stacked branch over a rewritten base),
 `git read-tree -u --reset <old head>` writes the exact tested tree, and the commit then
 holds precisely that. Done three times on 2026-10-09 (#327, #328, qmk#370); each result
 was byte-identical to the head CI had tested.
+
+## The full rules, moved from CLAUDE.md on 2026-11-12
+
+`CLAUDE.md` keeps a one-line version of each rule below and links here.
+
+### Branching
+
+- **Start every piece of work on a fresh branch cut from the updated default branch**
+  (table above), with a name that says what it is. Once a PR is merged its branch is
+  done. A push to it succeeds and orphans the commit. The one exception is a session's
+  designated branch that must keep its name: `docs/branching.md` → *Reusing a
+  squash-merged branch when a force push is refused*.
+- ⚠️ **A cross-repo feature can leave one repo with commits pushed and NO PR.** Every
+  local check passes on that repo. "Commits ahead" cannot answer it either, since a
+  squash-merged branch shows as ahead forever. Only a GitHub query for an existing PR
+  can. The `cross-repo-pr-sweep` skill runs it.
+- ⚠️ **A merged badge is not proof the work reached the default branch.** Confirm by
+  content: every file the PR changed must match on `origin/<default>`
+  (`git diff <pr-head> origin/<default> -- <its files>`; `git cat-file -e` for a file it
+  added). `git merge-base --is-ancestor <head> origin/<default>` answers only for a merge
+  commit, because a squash-merged head is never an ancestor. A stacked PR merged within a
+  minute of its base merges into the base's branch: the base reaches the default, the
+  stacked PR's content does not. Recovery is the `re-land-orphaned-pr` skill (in PolyKybdHost).
+- ⚠️ **A stacked PR is NOT retargeted when its base merges.** GitHub does that only
+  when the base branch is deleted, and merged branches are kept here. Retarget it
+  yourself (`update_pull_request base=<default>`), then merge it.
+- ⚠️ **A CLAUDE.md merge conflict is either addition beside addition (keep both) or
+  supersession (the newer version replaces the older one completely).** After resolving,
+  grep each of your notes back by name. Taking the whole of one side silently deletes
+  anything that shared the conflict block. ⚠️ **Supersession runs both ways: the
+  default branch may have PRUNED the section you edited**, so neither side can be taken
+  whole. Resolve the conflicting section only, and never by replacing the file: taking
+  the newer file whole drops every edit the branch made elsewhere, and
+  `git diff origin/<default>` then shows just the one change you re-applied, which reads
+  as confirmation. Diff against your own pre-merge commit as well as against the default.
+  ⚠️ **A grep-back COUNT is not an answer in either direction.** Read the matched line:
+  a note that shares a substring with the one that was deleted keeps the count non-zero,
+  and your own bad pattern makes a surviving note read as lost. Three 0s in a row on
+  host#354 were all bad patterns of mine (missing backticks around `` `prerelease` ``, a
+  phrase that spanned a line break, a lower-case search for an upper-case word).
+  Search one short distinctive substring, and know the expected count before you run it.
+
+Worked examples, the sweep's fail-open modes and stacked-PR recovery:
+[`docs/branching.md`](branching.md).

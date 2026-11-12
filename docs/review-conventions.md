@@ -466,3 +466,81 @@ as verified based only on the success path.
 That gives 11: qmk#376 5, host#349 4, host#354 2, qmk#377 0 (verified 2026-11-08). The
 retro's first draft said nine, with five about corrections. Neither number came from
 this query.
+
+## The full rules, moved from CLAUDE.md on 2026-11-12
+
+`CLAUDE.md` keeps a one-line version of each rule below and links here.
+
+### Code review
+
+- ⚠️ **Review traffic belongs on the PR, not in the chat** (maintainer's rule,
+  2026-10-14: bot events filled the conversation with review text). Handle a
+  bot finding, CI result, rate-limit notice or echo of your own reply on the PR, and
+  tell the user nothing, or one line. Report only what needs them or ends the round:
+  a finding you declined (one line, with why), a blocker, and the end state (merged,
+  ready, or red with its cause). Never restate findings, replies or check lists that
+  are already on the PR.
+- **Ignore CodeRabbit's "Docstring Coverage 80%" check.** It is a CodeRabbit default,
+  not project policy, and it does not block. Document new code where it helps a reader.
+- **Verify every AI reviewer finding against the code before acting on it.** Several
+  arrive confidently wrong, some refuted by their own evidence, and a sound conclusion
+  can rest on invented evidence. Fix the true ones. Decline the false ones with the
+  counter-evidence on the thread, because CodeRabbit stores a repo learning from it.
+- ⚠️ **Name the check you ran, not a stronger one.** "Read the code", "ran the test"
+  and "measured on the rig" are different claims. On 2026-10-12 one session said
+  "checked by hand" after a code read (qmk#380), "the keymap is correct without a
+  reset" when the keycodes had shifted, and called a DOOM job "hung" at 35 min and
+  cancelled it. 35 min is that job's normal time. Before calling a job stuck, look up
+  its normal duration in the job history.
+- ⚠️ **Verify your own correction as hard as the original finding. The fix is usually
+  sound while its CLAIM is wider than its behaviour.** On the release-gate work, four of
+  the eight acted-on findings answered text an earlier round had just corrected rather
+  than the original change: "a refusal changes nothing" when the release was already
+  public, "merge the bump, no further intervention" when the tag still had to be moved.
+  ⚠️ **Re-derive any tally from the API before you
+  write it into a note** — the retro that produced this bullet got the count wrong
+  twice from its own narration. The four claims, and the query:
+  [`docs/review-conventions.md`](review-conventions.md) → *A correction's claim is
+  wider than its behaviour*.
+- ⚠️ **CodeRabbit auto-review is OFF in all PolyKybd repos** (org setting, 2026-10-08).
+  Ask with `@coderabbitai review` posted as a COMMENT. The same line in the PR body does
+  nothing.
+- ⚠️ **A push cancels CodeRabbit's running review** ("Pull request base or head
+  changed"), and it does not resume. Re-request on the new head. When bot findings
+  arrive minutes apart, fix them in one push per turn rather than one push per finding;
+  ctnd#114 lost four CodeRabbit runs this way. The stop hook rejects an unpushed commit
+  and uncommitted changes at the end of a turn, so to hold a fix across turns until the
+  review finishes, keep it uncommitted, `git stash push -u -m <why> -- <every file of
+  the fix>` it (`-u` takes new files too) and pop it then (qmk#407, 2026-10-30). A
+  stash holds only uncommitted changes: a fix already committed cannot wait this way.
+- ⚠️ **A green board is NOT evidence anyone reviewed your code.** A quota refusal is a
+  review object carrying the head sha, and a clean CodeRabbit pass creates no review
+  object at all. Check `get_reviews` and the summary comment's `📥 Commits` range.
+  Greptile and Sourcery are out of credit on some repos and still post convincing
+  summaries.
+- ⚠️ **A green CodeQL check is not "no findings".** On a host PR that adds or changes
+  Python, read the review comments for `github-advanced-security[bot]` before merging.
+  host#719 merged on a green `CodeQL` and `Analyze Python`, and three findings arrived
+  as review comments a minute later (fixed in #721, 2026-11-07). Detail:
+  `triage-pr-review`.
+- ⚠️ **Raise a new LIMIT with the maintainer before writing it into code or docs**
+  (maintainer's rule, 2026-10-09): a cap, bound, ceiling or size. An unmeasured 48-icon (#240)
+  cap per app cut Kate's F1, F2 and Find in Files, and two replacements guessed on the
+  spot (512, then 1440) repeated the mistake. Say the number, what it counts and what it
+  is measured against, then wait. Prefer a value the system already defines (firmware
+  `NUM_OVERLAY_SLOTS` = host `OVERLAY_POOL_CAPACITY` = 600).
+- ⚠️ **After changing a function signature or renaming a symbol, grep the CLAUDE.md
+  files and docs for prose references to it.** Nothing in CI reads Markdown, so a stale
+  API example ships and reads as authoritative.
+- **Sourcery's `dangerous-subprocess-use-audit` wants `# nosemgrep` plus a written
+  audit, not contorted code.** The marker applies only to the line immediately after
+  it, so it goes directly above the call, with the reasoning above the marker.
+- **Security-scanner findings:** verify each one with the `verify-security-finding`
+  skill, and record the disposition in `polykybd-ctnd/docs/SECURITY_AUDIT.md` even when
+  nothing changes. A dismissal with no record gets re-raised in full by the next scan.
+  In qmk, a finding on an inherited upstream file is a prompt to audit the files we own;
+  `qmk_firmware/CLAUDE.md` has the checks.
+
+The detailed guide (which bot stops reviewing and how that looks, merge-commit reviews,
+parity pins, worked examples): [`docs/review-conventions.md`](review-conventions.md)
+and the `triage-pr-review` skill.

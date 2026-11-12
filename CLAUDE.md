@@ -1,240 +1,126 @@
 # CLAUDE.md: shared rules for all PolyKybd repos
 
-This repo holds the instructions and skills that apply to every PolyKybd repo. Attach
-it to every session and every environment. Its CLAUDE.md and its skills load like any
-other attached repo's.
+This repo holds the instructions and skills for every PolyKybd repo. Attach it to every
+session and every environment.
 
 ## Which file to follow
 
-1. **This file** covers rules for all repos: review, branching, mirrored files,
-   releases, and the limits of the web session.
-2. **The repo's own `CLAUDE.md`** covers only that repo. It does not repeat these rules.
-   When the two disagree, the repo file takes priority for that repo.
-3. **The docs a CLAUDE.md links** hold the detail and the history behind each rule.
-   Read the linked doc before changing that subsystem.
-4. **`.claude/rules/*.md`** (path-scoped) load only when the Read tool opens a
-   matching file. They do NOT load through `cat`/`sed` in Bash, so they add to a
-   CLAUDE.md pointer and never replace one.
-5. **Skills** load from every attached repo. The cross-repo skills live here, once.
+1. **This file** is the only CLAUDE.md with rules. It loads at every session start.
+2. **Each repo's rules are in `docs/repos/<repo>.md` here** (table below). The repo's
+   own `CLAUDE.md` is a pointer to that file. Read the file before you build, edit,
+   review or release anything in that repo. When it disagrees with this file, it takes
+   priority for that repo.
+3. **The docs a rules file links** hold the detail and history. Read the linked doc
+   before changing that subsystem.
+4. **`.claude/rules/*.md`** (path-scoped) load only when the Read tool opens a matching
+   file, not through `cat`/`sed` in Bash. They add to a rules file and never replace one.
+5. **Skills** load from every attached repo. The cross-repo skills are here, once.
+6. **A new rule** for one repo goes in its `docs/repos/<repo>.md`, never back into that
+   repo's `CLAUDE.md`. A rule for all repos goes here as one line, with the detail in a
+   linked doc.
 
-If this repo is missing from a session, the shared rules are missing too. Ask the user
-to attach `thpoll83/polykybd-claude`.
+If this repo is missing, the rules are missing too. Ask the user to attach
+`thpoll83/polykybd-claude`. ⚠️ **A read-only `add_repo` does not attach it**: its
+CLAUDE.md and skills never load. Attach with `access: "push"`, clone to
+`/home/user/polykybd-claude`, then call `register_repo_root`. The auto-mode classifier can
+refuse the push attach: [`docs/web-session.md`](docs/web-session.md) → *When the push
+attach is refused*.
 
-⚠️ **A read-only `add_repo` does not attach it.** For a public repo it only allows an
-anonymous clone, at `/home/user/<owner>/<repo>`, and that clone's CLAUDE.md and skills
-never load. Attach with `access: "push"`, clone to `/home/user/polykybd-claude` (the
-path every repo CLAUDE.md links as `../polykybd-claude`), then call `register_repo_root`.
-⚠️ **The auto-mode classifier can refuse the push attach**, with no reason given.
-What still works then, and how a change for this repo reaches it:
-[`docs/web-session.md`](docs/web-session.md) → *When the push attach is refused*.
-
-| dir under `/home/user` | repo | default branch | what it is |
+| dir under `/home/user` | default branch | what it is | rules |
 |---|---|---|---|
-| `qmk_firmware` | thpoll83/qmk_firmware | `PolyKybd` | firmware (QMK fork, `keyboards/polykybd/`) |
-| `PolyKybdHost` | thpoll83/PolyKybdHost | `main` | host app (Python, PyQt5) |
-| `polykybd-ctnd` | thpoll83/polykybd-ctnd | `main` | RPi4 hardware-in-the-loop rig + CI runner |
-| `polykybd-docs` | thpoll83/polykybd-docs | `main` | public site www.polykybd.org (Astro Starlight) |
-| `PolyKybd` | thpoll83/PolyKybd | `master` | hardware: KiCad boards, OpenSCAD/build123d parts |
-| `Adafruit-GFX-Library` | thpoll83/Adafruit-GFX-Library | `master` | `fontconvert`, generates the firmware's font headers |
-| `wincompose` | thpoll83/wincompose | `main` | WinCompose fork, Unicode input on Windows |
-| `gnome-wayland-winreader` | thpoll83/gnome-wayland-winreader | `main` | GNOME Shell extension reporting the focused window (no CLAUDE.md) |
-| `polykybd-claude` | thpoll83/polykybd-claude | `main` | this repo |
+| `qmk_firmware` | `PolyKybd` | firmware (QMK fork, `keyboards/polykybd/`) | [qmk_firmware.md](docs/repos/qmk_firmware.md) |
+| `PolyKybdHost` | `main` | host app (Python, PyQt5) | [PolyKybdHost.md](docs/repos/PolyKybdHost.md) |
+| `polykybd-ctnd` | `main` | RPi4 hardware-in-the-loop rig + CI runner | [polykybd-ctnd.md](docs/repos/polykybd-ctnd.md) |
+| `polykybd-docs` | `main` | public site www.polykybd.org (Astro Starlight) | [polykybd-docs.md](docs/repos/polykybd-docs.md) |
+| `PolyKybd` | `master` | hardware: KiCad boards, OpenSCAD/build123d parts | [PolyKybd.md](docs/repos/PolyKybd.md) |
+| `Adafruit-GFX-Library` | `master` | `fontconvert`, generates the firmware's font headers | [Adafruit-GFX-Library.md](docs/repos/Adafruit-GFX-Library.md) |
+| `wincompose` | `main` | WinCompose fork, Unicode input on Windows | [wincompose.md](docs/repos/wincompose.md) |
+| `gnome-wayland-winreader` | `main` | GNOME Shell extension reporting the focused window | none |
+| `polykybd-claude` | `main` | this repo | this file |
 
-The old pre-2026-10-10 CLAUDE.md files are kept verbatim in `docs/archive/`. They are
-the backstop if a consolidated note turns out to be missing something.
+All repos are `thpoll83/<dir>`. Older CLAUDE.md versions are in `docs/archive/`.
 
-## The web session: what it cannot do
+## The web session
 
-- **You cannot push tags, create a release, delete a remote branch, or create a
-  repo.** The git proxy returns 403 on tag refs and branch deletes. There is no `gh`.
-  For a release, stage the notes and hand the user `python scripts/publish_release.py`.
-  Don't create scratch branches you cannot clean up, unless the user agrees first and
-  you give them the branch name to delete (the review-only draft in `triage-pr-review`).
-- ⚠️ **The clone is SHALLOW, and `git merge-base` then returns an EMPTY STRING, not an
-  error.** A diff against upstream or a tag-anchored range then gives a plausible wrong
-  answer. Run `git rev-parse --is-shallow-repository` first;
-  `git fetch origin --unshallow --no-recurse-submodules` fixes it.
-- ⚠️ **The checkout can be BEHIND what this session pushed, or be reset when the
-  container is reclaimed.** Nothing reports it. Before concluding that work is missing,
-  or that a review finding does not reproduce: `git log --oneline -1`, then
-  `git fetch origin <branch> && git log --oneline HEAD..FETCH_HEAD`. Work you remember
-  doing that left no trace is a checkout problem first and a code problem second.
-- ⚠️ **A transient 500 is not a capability limit.** `merge_pull_request` returned
-  500 with an empty body four times in one session while every read worked, and the
-  identical call succeeded first try two days later. The 403s above are the real limits
-  and they name themselves. Retry in a later turn before telling the user this session
-  type cannot do something.
-- ⚠️ **An `add_repo` clone fetches ONLY the default branch, so `git push -u` leaves
-  `@{u}` unresolvable and a pushed branch reads as unpushed.** The clone sets
-  `remote.origin.fetch` to `+refs/heads/main:refs/remotes/origin/main` alone, so the push
-  writes the tracking config with no `refs/remotes/origin/<branch>` to point at. `git
-  status` then says "no upstream", `git rev-list @{u}..HEAD` fails, and a stop hook
-  reports "1 unpushed commit and no remote branch" on a branch that is already on the
-  remote. Confirm with `git ls-remote origin refs/heads/<branch>` against `git rev-parse
-  HEAD` before believing it, then add a mapping for THAT branch and fetch it:
-  `git config --add remote.origin.fetch
-  '+refs/heads/<branch>:refs/remotes/origin/<branch>'` and
-  `git fetch origin <branch>`. ⚠️ **`--add`, not a plain set**, which exits 5 with
-  "cannot overwrite multiple values with a single value" once the key holds more than
-  one refspec (measured). ⚠️ **Not a `*` wildcard either**: it makes every later
-  `git fetch` and the documented `--unshallow` pull every branch, and qmk_firmware
-  has over 500 `claude/*` branches.
-- ⚠️ **`merge_pull_request`'s `expectedHeadSha` must be the full 40 characters.**
-  A sha rebuilt from an 8-character prefix returns `409 Head branch was modified` and
-  merges nothing; a wrong length returns "The sha parameter must be exactly 40
-  characters". Read `.head.sha` from `pull_request_read` for each merge rather than
-  reusing a short sha from a commit listing.
-- **Chromium is installed headless** (`/opt/pw-browsers/chromium`, also through
-  Playwright). Look at generated HTML, SVG and rendered pages instead of reasoning
-  about the markup.
-- **`gh api` works for reads** through the proxy, although the session says there is
-  no `gh`. A wait for a check run or a review is a bash `until` loop over
-  `gh api repos/<owner>/<repo>/commits/<sha>/check-runs` with a timeout, which is how
-  a push can wait for CodeRabbit's one included review per hour to finish instead
-  of cancelling it (2026-10-20). Re-running one job works:
-  `gh api -X POST repos/<owner>/<repo>/actions/jobs/<job-id>/rerun` (the HIL job on
-  qmk#404 after its ctnd test merged, 2026-10-24). Writes for a release or a tag stay
-  untested.
-- **Set the git identity before the first commit**: `git config user.email
-  noreply@anthropic.com && git config user.name Claude` in each repo. The stop hook
-  rejects an unpushed commit made with the user's address as "unverified" and asks
-  for an amend (2026-10-20).
-- ⚠️ **A `pkill -f` / `pgrep -f` pattern matches the shell that runs it, and kills it**
-  (exit 144, and every step chained after it is lost). The `[x]yz` bracket pattern
-  protects only the pattern argument: if the plain text appears anywhere else in the
-  same command line, such as a path, the shell still matches. Run `pgrep -af <name>`
-  as its own command, then `kill <PID>`.
-- ⚠️ **A background command is stopped at its time limit: 30 minutes by default, 2 hours
-  at most.** For a job that may run longer (a Blender render, a long build), detach the
-  job itself (`setsid nohup bash -c '…; echo EXIT $? >> job.log' &`) and wait with a
-  separate `until grep -q '^EXIT' job.log; do sleep 30; done` that has an explicit
-  `timeout`. A stopped watcher then costs nothing, because the job keeps running.
+Each rule has its incident and full text in [`docs/web-session.md`](docs/web-session.md).
 
-Detail and the incidents behind these: [`docs/web-session.md`](docs/web-session.md).
+- You cannot push tags, create a release, delete a remote branch or create a repo (403).
+  There is no `gh` for writes. For a release, stage the notes and hand the user
+  `python scripts/publish_release.py`. Create no scratch branch unless the user agrees.
+- ⚠️ The clone is shallow, and `git merge-base` then returns an empty string, not an
+  error. Check `git rev-parse --is-shallow-repository`; fix with
+  `git fetch origin --unshallow --no-recurse-submodules`.
+- ⚠️ The checkout can be behind what this session pushed, or reset. Before you conclude
+  work is missing: `git fetch origin <branch> && git log --oneline HEAD..FETCH_HEAD`.
+- ⚠️ A transient 500 is not a capability limit. Retry in a later turn.
+- ⚠️ An `add_repo` clone fetches only the default branch, so a pushed branch reads as
+  unpushed. Check `git ls-remote origin refs/heads/<branch>`, then
+  `git config --add remote.origin.fetch '+refs/heads/<branch>:refs/remotes/origin/<branch>'`
+  (`--add`, and no `*` wildcard).
+- ⚠️ `merge_pull_request`'s `expectedHeadSha` must be the full 40 characters.
+- `gh api` works for reads, including waiting for check runs and re-running a job.
+  Chromium is installed headless (`/opt/pw-browsers/chromium`): look at rendered output.
+- Before the first commit in each repo: `git config user.email noreply@anthropic.com &&
+  git config user.name Claude`.
+- ⚠️ A `pkill -f` / `pgrep -f` pattern matches the shell that runs it. Run
+  `pgrep -af <name>` as its own command, then `kill <PID>`.
+- ⚠️ A background command stops at 30 min (2 h max). Detach a longer job with
+  `setsid nohup` and wait on its log with a separate `until` loop.
 
 ## Branching
 
-- **Start every piece of work on a fresh branch cut from the updated default branch**
-  (table above), with a name that says what it is. Once a PR is merged its branch is
-  done. A push to it succeeds and orphans the commit. The one exception is a session's
-  designated branch that must keep its name: `docs/branching.md` → *Reusing a
-  squash-merged branch when a force push is refused*.
-- ⚠️ **A cross-repo feature can leave one repo with commits pushed and NO PR.** Every
-  local check passes on that repo. "Commits ahead" cannot answer it either, since a
-  squash-merged branch shows as ahead forever. Only a GitHub query for an existing PR
-  can. The `cross-repo-pr-sweep` skill runs it.
-- ⚠️ **A merged badge is not proof the work reached the default branch.** Check
-  `git merge-base --is-ancestor <head> origin/<default>`, and confirm by content
-  (`git cat-file -e origin/<default>:<a file it added>`). A stacked PR merged within a
-  minute of its base merges into the base's branch, and neither PR's content reaches the
-  default. Recovery is the `re-land-orphaned-pr` skill (in PolyKybdHost).
-- ⚠️ **A stacked PR is NOT retargeted when its base merges.** GitHub does that only
-  when the base branch is deleted, and merged branches are kept here. Retarget it
-  yourself (`update_pull_request base=<default>`), then merge it.
-- ⚠️ **A CLAUDE.md merge conflict is either addition beside addition (keep both) or
-  supersession (the newer version replaces the older one completely).** After resolving,
-  grep each of your notes back by name. Taking the whole of one side silently deletes
-  anything that shared the conflict block. ⚠️ **Supersession runs both ways: the
-  default branch may have PRUNED the section you edited**, so neither side can be taken
-  whole. Resolve the conflicting section only, and never by replacing the file: taking
-  the newer file whole drops every edit the branch made elsewhere, and
-  `git diff origin/<default>` then shows just the one change you re-applied, which reads
-  as confirmation. Diff against your own pre-merge commit as well as against the default.
-  ⚠️ **A grep-back COUNT is not an answer in either direction.** Read the matched line:
-  a note that shares a substring with the one that was deleted keeps the count non-zero,
-  and your own bad pattern makes a surviving note read as lost. Three 0s in a row on
-  host#354 were all bad patterns of mine (missing backticks around `` `prerelease` ``, a
-  phrase that spanned a line break, a lower-case search for an upper-case word).
-  Search one short distinctive substring, and know the expected count before you run it.
+Detail and worked examples: [`docs/branching.md`](docs/branching.md).
 
-Worked examples, the sweep's fail-open modes and stacked-PR recovery:
-[`docs/branching.md`](docs/branching.md).
+- Start every piece of work on a fresh branch from the updated default branch. A merged
+  branch is done; a push to it orphans the commit.
+- ⚠️ A cross-repo feature can leave one repo with commits pushed and no PR. Only a GitHub
+  query finds it: the `cross-repo-pr-sweep` skill.
+- ⚠️ A merged badge is not proof the work reached the default branch. Check its changes
+  on `origin/<default>` by content. `git merge-base --is-ancestor` answers only for a
+  merge commit: a squash-merged head is never an ancestor.
+- ⚠️ A stacked PR is not retargeted when its base merges. Retarget it yourself.
+- ⚠️ In a merge conflict on a rules file, resolve the conflicting section only, never by
+  taking a whole side. Then grep each of your notes back by a short distinct substring.
 
 ## Code review
 
-- ⚠️ **Review traffic belongs on the PR, not in the chat** (maintainer's rule,
-  2026-10-14: bot events filled the conversation with review text). Handle a
-  bot finding, CI result, rate-limit notice or echo of your own reply on the PR, and
-  tell the user nothing, or one line. Report only what needs them or ends the round:
-  a finding you declined (one line, with why), a blocker, and the end state (merged,
-  ready, or red with its cause). Never restate findings, replies or check lists that
-  are already on the PR.
-- **Ignore CodeRabbit's "Docstring Coverage 80%" check.** It is a CodeRabbit default,
-  not project policy, and it does not block. Document new code where it helps a reader.
-- **Verify every AI reviewer finding against the code before acting on it.** Several
-  arrive confidently wrong, some refuted by their own evidence, and a sound conclusion
-  can rest on invented evidence. Fix the true ones. Decline the false ones with the
-  counter-evidence on the thread, because CodeRabbit stores a repo learning from it.
-- ⚠️ **Name the check you ran, not a stronger one.** "Read the code", "ran the test"
-  and "measured on the rig" are different claims. On 2026-10-12 one session said
-  "checked by hand" after a code read (qmk#380), "the keymap is correct without a
-  reset" when the keycodes had shifted, and called a DOOM job "hung" at 35 min and
-  cancelled it. 35 min is that job's normal time. Before calling a job stuck, look up
-  its normal duration in the job history.
-- ⚠️ **Verify your own correction as hard as the original finding. The fix is usually
-  sound while its CLAIM is wider than its behaviour.** On the release-gate work, four of
-  the eight acted-on findings answered text an earlier round had just corrected rather
-  than the original change: "a refusal changes nothing" when the release was already
-  public, "merge the bump, no further intervention" when the tag still had to be moved.
-  ⚠️ **Re-derive any tally from the API before you
-  write it into a note** — the retro that produced this bullet got the count wrong
-  twice from its own narration. The four claims, and the query:
-  [`docs/review-conventions.md`](docs/review-conventions.md) → *A correction's claim is
-  wider than its behaviour*.
-- ⚠️ **CodeRabbit auto-review is OFF in all PolyKybd repos** (org setting, 2026-10-08).
-  Ask with `@coderabbitai review` posted as a COMMENT. The same line in the PR body does
-  nothing.
-- ⚠️ **A push cancels CodeRabbit's running review** ("Pull request base or head
-  changed"), and it does not resume. Re-request on the new head. When bot findings
-  arrive minutes apart, fix them in one push per turn rather than one push per finding;
-  ctnd#114 lost four CodeRabbit runs this way. The stop hook rejects an unpushed commit
-  and uncommitted changes at the end of a turn, so to hold a fix across turns until the
-  review finishes, keep it uncommitted, `git stash push -u -m <why> -- <every file of
-  the fix>` it (`-u` takes new files too) and pop it then (qmk#407, 2026-10-30). A
-  stash holds only uncommitted changes: a fix already committed cannot wait this way.
-- ⚠️ **A green board is NOT evidence anyone reviewed your code.** A quota refusal is a
-  review object carrying the head sha, and a clean CodeRabbit pass creates no review
-  object at all. Check `get_reviews` and the summary comment's `📥 Commits` range.
-  Greptile and Sourcery are out of credit on some repos and still post convincing
-  summaries.
-- ⚠️ **A green CodeQL check is not "no findings".** On a host PR that adds or changes
-  Python, read the review comments for `github-advanced-security[bot]` before merging.
-  host#719 merged on a green `CodeQL` and `Analyze Python`, and three findings arrived
-  as review comments a minute later (fixed in #721, 2026-11-07). Detail:
-  `triage-pr-review`.
-- ⚠️ **Raise a new LIMIT with the maintainer before writing it into code or docs**
-  (maintainer's rule, 2026-10-09): a cap, bound, ceiling or size. An unmeasured 48-icon (#240)
-  cap per app cut Kate's F1, F2 and Find in Files, and two replacements guessed on the
-  spot (512, then 1440) repeated the mistake. Say the number, what it counts and what it
-  is measured against, then wait. Prefer a value the system already defines (firmware
-  `NUM_OVERLAY_SLOTS` = host `OVERLAY_POOL_CAPACITY` = 600).
-- ⚠️ **After changing a function signature or renaming a symbol, grep the CLAUDE.md
-  files and docs for prose references to it.** Nothing in CI reads Markdown, so a stale
-  API example ships and reads as authoritative.
-- **Sourcery's `dangerous-subprocess-use-audit` wants `# nosemgrep` plus a written
-  audit, not contorted code.** The marker applies only to the line immediately after
-  it, so it goes directly above the call, with the reasoning above the marker.
-- **Security-scanner findings:** verify each one with the `verify-security-finding`
-  skill, and record the disposition in `polykybd-ctnd/docs/SECURITY_AUDIT.md` even when
-  nothing changes. A dismissal with no record gets re-raised in full by the next scan.
-  In qmk, a finding on an inherited upstream file is a prompt to audit the files we own;
-  `qmk_firmware/CLAUDE.md` has the checks.
+Detail: [`docs/review-conventions.md`](docs/review-conventions.md) and the
+`triage-pr-review` skill.
 
-The detailed guide (which bot stops reviewing and how that looks, merge-commit reviews,
-parity pins, worked examples): [`docs/review-conventions.md`](docs/review-conventions.md)
-and the `triage-pr-review` skill.
+- ⚠️ Review traffic belongs on the PR, not in the chat. Tell the user only a declined
+  finding (one line, with why), a blocker, and the end state.
+- Ignore CodeRabbit's "Docstring Coverage 80%" check.
+- Verify every AI reviewer finding against the code. Fix the true ones. Decline the
+  false ones on the thread with the counter-evidence.
+- ⚠️ Name the check you ran, not a stronger one ("read the code" is not "ran the test").
+  Look up a job's normal duration before calling it stuck.
+- ⚠️ Verify your own correction as hard as the finding: its claim is often wider than its
+  behaviour. Re-derive any tally from the API before writing it down.
+- ⚠️ CodeRabbit auto-review is off. Post `@coderabbitai review` as a comment. A push
+  cancels its running review, so push fixes once per turn; hold a fix with
+  `git stash push -u` until the review finishes.
+- ⚠️ A green board is not a review. Check `get_reviews` and each review's `commit_id`.
+  On a host PR that changes Python, read `github-advanced-security[bot]` comments too:
+  a green CodeQL check can still have findings.
+- ⚠️ Raise a new limit (cap, bound, size) with the maintainer before writing it. Say the
+  number, what it counts and what it is measured against. Prefer a value the system
+  already defines.
+- ⚠️ After renaming a symbol or changing a signature, grep the docs and rules files.
+- Sourcery's `dangerous-subprocess-use-audit`: `# nosemgrep` on the line directly above
+  the call, with the written audit above the marker.
+- Security-scanner findings: the `verify-security-finding` skill, and record every
+  disposition in `polykybd-ctnd/docs/SECURITY_AUDIT.md`.
 
 ## Writing style
 
-Write docs pages, CLAUDE.md files, skills, PR bodies and review replies in plain,
-technical English that a non-native reader can follow (maintainer's rule, 2026-10-15;
-docs#131 and docs#133 rewrote all 65 site pages to it).
+Write docs pages, rules files, skills, PR bodies and review replies in plain, technical
+English that a non-native reader can follow (maintainer's rule, 2026-10-15).
 
 - **No idioms, metaphors or insider slang.** Write the plain verb: load-bearing →
   required; lands → is written to; wins → takes priority; lives in → is in; carries →
   has; in lockstep → together; escape hatch, gotcha, knobs, ground truth, hard-won,
   quietly, genuinely → say what happens. The full word list is in
-  `polykybd-docs/CLAUDE.md` → *Writing style*.
+  [`docs/repos/polykybd-docs.md`](docs/repos/polykybd-docs.md) → *Writing style*.
 - **No rhetorical questions.** State the point.
 - **Cut what the reader does not act on**: design rationale, older-version history, how a
   render was made, and text that repeats the same page.
@@ -243,85 +129,44 @@ docs#131 and docs#133 rewrote all 65 site pages to it).
 ## Files kept byte-identical across repos
 
 Nothing in CI compares these copies. Change one, copy it to the others, and run
-`bash /home/user/polykybd-claude/.claude/skills/check-mirrored-artifacts/check_mirrors.sh` (the
-`check-mirrored-artifacts` skill).
+`bash /home/user/polykybd-claude/.claude/skills/check-mirrored-artifacts/check_mirrors.sh`.
 
 | file | copies | what drift breaks |
 |---|---|---|
-| `iso_lang_country.py` (frozen, append-only index table) | qmk `keyboards/polykybd/lang/`, host `polyhost/services/`, ctnd `station/` | host and rig decode the wrong languages, silently |
-| `publish_release.py` | qmk, host and wincompose `scripts/` | a release gate present in one copy and missing in another. Its tests are in `PolyKybdHost/tests/scripts/publish_release_test.py` |
+| `iso_lang_country.py` (frozen, append-only) | qmk `keyboards/polykybd/lang/`, host `polyhost/services/`, ctnd `station/` | host and rig decode the wrong languages |
+| `publish_release.py` | qmk, host, wincompose `scripts/` | a release gate missing in one copy (tests: host `tests/scripts/publish_release_test.py`) |
 | `noto-fonts.yaml`, `fontpack_render_settings.json`, `lang_flags.json` | qmk (canonical) → host | the host's font dialogs pre-fill wrong values |
 | `quantum/keycodes.h` | qmk → host `polyhost/res/` | the layout editor shows wrong keycode names |
 
-⚠️ **A generated file whose generator's input path no longer exists fails silently, and
-no `cmp` catches it.** Re-run the generator (`--check` where one exists) rather than
-trusting the file.
+⚠️ A generated file whose generator input no longer exists fails silently. Re-run the
+generator (`--check` where one exists).
 
 ## Releases
 
-Every repo releases by **publishing a GitHub Release**, never by pushing a tag. A
-pushed tag is placed on the auto-bump `[skip ci]` commit and triggers nothing. Tags:
-firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
-`polykybd-github-release` skill drives it.
+Detail and incidents: [`docs/releases.md`](docs/releases.md). The
+`polykybd-github-release` skill drives a release.
 
-- ⚠️ **Each `release.yml` refuses a tag whose tree declares a different version.**
-  Otherwise the download claims one version, the install reports another, and the
-  updater offers the same release forever (wincompose `PK-0.9.19`). The fix is to MOVE
-  the tag, and only while no release holds it. Delete the release the refusal left
-  behind first.
-- ⚠️ **The version increase is label-driven and the label must be set AT OPEN.** It is read
-  at merge time, and a label added during the merge arrives too late. A request in the PR
-  body is not a label. `create_pull_request` cannot set labels, so call `issue_write`
-  with `labels:` right after opening. ⚠️ Then read the labels back a few minutes later.
-  The qmk labeler once overwrote `bump:minor`. `issue_write` replaces the list, so
-  re-set it in full (`["keyboard","bump:minor"]`).
-- ⚠️ **PATCH is the default; `bump:minor` is the exception** (maintainer's rule,
-  2026-10-03). Use it only for a feature an owner would call new. A `PROTOCOL_VERSION`
-  increase does not imply minor. When unsure, ask.
-- ⚠️ **A `PROTOCOL_VERSION` increase means BOTH firmware and host get released, and the
-  check is the PUBLISHED versions.** The connect gate is a range, not exact-match, so an
-  old host pairs with new firmware and silently leaves the new features off. Publish the
-  host first. Host and firmware version numbers are otherwise independent.
-- ⚠️ **A docs PR ships the moment it merges; host and firmware ship on a release.** A
-  docs page describing new behaviour waits for the release that contains it, or names
-  the required version on the page.
-- ⚠️ **Write that version only after its bump commit exists on the default branch.**
-  Parallel sessions merge in between and take the next numbers. docs#104 named 1.8.6;
-  qmk#361 and qmk#364 merged first and took 1.8.7 and 1.8.8, so the feature shipped in 1.8.9
-  and the page was wrong until docs#118.
-- ⚠️ **Name the version that gets PUBLISHED, not the bump that added the feature.** Every
-  merge takes a version, but a release covers many of them: the overlays page said a
-  feature needed firmware 1.9.13 and host 1.17.53, and the releases went from 1.9.12 to
-  1.9.15 and from 1.17.49 to 1.17.82, so no user could ever install either number. When
-  the release is not out yet, write the version the staged notes name
-  (`release-notes/<tag>.md`), and correct it if a merge moves the release.
-- ⚠️ **Read the PUBLISHED releases before you write or restage any version**:
-  `gh api repos/<owner>/<repo>/releases --jq '.[0].tag_name'`. A session summary or
-  your memory of "not released yet" is not evidence. On 2026-11-04 a summary said host
-  1.17.82 and firmware 1.9.15 were unpublished when both had been published that
-  morning. The session replaced their notes on `release-notes` and moved the docs
-  site's requirements to the next versions (docs#146 and a restore fixed both). The
-  notes of a published release stay as they are. The next notes cover only what
-  merged since that release.
-- ⚠️ **Other merges move the next version while you wait.** In under three hours on
-  2026-11-04 the host went from 1.17.83 to 1.17.87: five merges, three of them from
-  other sessions (host#507, #495, #531), and
-  the staged notes and the docs page were renamed three times. Before handing the
-  user the publish command, run `git log --oneline <last-published-tag>..origin/<default>`
-  and fold every user-facing merge into the notes.
-
-Both repos' original release bullets, verbatim: [`docs/releases.md`](docs/releases.md).
-Action versions in our own workflows (the Node 24 majors, why the bump workflows
-stay on checkout v5): [`docs/github-actions.md`](docs/github-actions.md).
+- Every repo releases by publishing a GitHub Release, never by pushing a tag. Tags:
+  firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`.
+- ⚠️ `release.yml` refuses a tag whose tree declares another version. Move the tag, only
+  while no release holds it.
+- ⚠️ The version increase is label-driven and read at merge. Set the label with
+  `issue_write` right after opening, read it back minutes later, and re-set the full list.
+- ⚠️ PATCH is the default; `bump:minor` only for a feature an owner would call new.
+- ⚠️ A `PROTOCOL_VERSION` increase means both firmware and host get released. Publish
+  the host first.
+- ⚠️ A docs PR ships when it merges. A page about new behaviour waits for the release, or
+  names the version that gets published (the staged `release-notes/<tag>.md` if not out).
+- ⚠️ Read the published releases before you write any version:
+  `gh api repos/<owner>/<repo>/releases/latest --jq .tag_name`. Before handing over the
+  publish command, fold every merge since the last published tag into the notes.
 
 ## What costs context
 
-Every attached repo's CLAUDE.md loads in full at session start. An imported file
-(`@path`) also loads at launch, so a shared import saves nothing. A linked doc costs
-nothing until read, a path-scoped rule until its file is Read, and a skill until it is
-invoked. Keep each CLAUDE.md to rules that bind code outside their own subsystem, and
-move the rest behind a link. The `prune-claude-md` skill does this without losing a
-line. Measurements: [`docs/skills-and-context.md`](docs/skills-and-context.md).
+Every attached repo's CLAUDE.md loads in full at session start, and an `@path` import
+loads too. A linked doc, a path-scoped rule and a skill cost nothing until used. So the
+repo CLAUDE.md files are pointers, and this file keeps one line per rule. Measurements
+and the `prune-claude-md` skill: [`docs/skills-and-context.md`](docs/skills-and-context.md).
 
-⚠️ **A skill under a subdirectory (e.g. `keyboards/polykybd/.claude/skills/`) does NOT
-load.** Skills go at a repo root `.claude/skills/`.
+⚠️ A skill under a subdirectory (e.g. `keyboards/polykybd/.claude/skills/`) does not
+load. Skills go at a repo root `.claude/skills/`.

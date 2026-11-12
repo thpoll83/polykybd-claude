@@ -55,8 +55,9 @@ Keep a fact only if it is **non-obvious and would save the next session time**:
 first), or one-true-fact-per-line trivia. When in doubt, ask "would I want this
 *before* starting the same task again?"
 
-For each learning: pick the **target file** (the most specific `CLAUDE.md` or doc
-in the relevant repo/dir) and draft the exact text, matching that file's
+For each learning: pick the **target file** (the most specific rules file or doc:
+`polykybd-claude/docs/repos/<repo>.md` for a repo rule, never the repo's
+`CLAUDE.md`, which is a pointer since 2026-11-12) and draft the exact text, matching that file's
 existing voice and section structure.
 
 ## 3. What counts as a SKILL (codify-worthy)
@@ -156,7 +157,7 @@ retro's OWN output.
      overrides the default "do not create a pull request unless asked". Do not
      stop at a local commit, and do not ask a second time.
      - **One PR per repo.** A retro routinely writes into two or three
-       `CLAUDE.md`s and maybe a skill; each repo gets its own branch, commit and
+       rules files or docs and maybe a skill; each repo gets its own branch, commit and
        PR against its own default — `PolyKybd` for the firmware, `master` for
        `Adafruit-GFX-Library` and `PolyKybd` (hardware), `main` for the rest.
      - ⚠️ **Cut the branch fresh from the updated default FIRST.** A retro runs
@@ -171,7 +172,9 @@ retro's OWN output.
        already cites, so it costs nothing to carry over.
      - **A cross-repo skill lives once, in `polykybd-claude/.claude/skills/`**
        (since 2026-10-10 there are no mirrored skill copies). A note for every
-       repo goes in `polykybd-claude/CLAUDE.md`, not in each repo's file. Run
+       repo goes in `polykybd-claude/CLAUDE.md` as one line, with the detail in a
+       linked doc there. A note for one repo goes in
+       `polykybd-claude/docs/repos/<repo>.md`. Run
        `check_mirrors.sh` (the `check-mirrored-artifacts` skill) if you touched
        a mirrored FILE.
      - **Report the PR links when done.** The retro is not finished until they
@@ -204,14 +207,16 @@ Recommendation: <which to keep, and why>
 
 - ⚠️ **polykybd-claude is the default target** (maintainer's rule, 2026-10-22). A
   learning goes into one of its skills or `docs/`, and a skill used with more than
-  one repo moves here. A repo's own `CLAUDE.md` or doc is the target only to correct
-  text already in it, or for a rule about that repo's code that no skill here covers.
+  one repo moves here. A repo's rules are in `docs/repos/<repo>.md` here; the repo's own `CLAUDE.md` is a
+  5-line pointer and never takes a rule. A doc inside the repo is the target only to
+  correct text already in it, or for subsystem detail that a rules file links.
 - **Repo `.claude/skills/`** — committed + shared; use for project-specific
   workflows (this is where the PolyKybd dev skills live).
 - **`~/.claude/skills/`** — user-level, available in every session regardless of
   repo; use for genuinely cross-project meta-skills.
-- **CLAUDE.md** — the most *specific* one wins (a `lang/FUTURE_LANGUAGES.md`-style
-  doc over the top-level CLAUDE.md when the learning is narrow).
+- **Rules files** — the most *specific* target takes priority (a
+  `lang/FUTURE_LANGUAGES.md`-style doc over `docs/repos/<repo>.md` when the learning is
+  narrow).
 
 ## Pitfalls
 

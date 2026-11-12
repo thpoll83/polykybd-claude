@@ -177,3 +177,16 @@ proposed again, because it is an obvious-looking saving that is not one.
   exists() bit.
 
 
+
+## The repo rules moved here (2026-11-12)
+
+Every session attaches all repos, so every repo's `CLAUDE.md` loaded at every start,
+109,349 B in total, while a session works in one to three repos. Each repo's rules moved
+verbatim to `docs/repos/<repo>.md` in this repo, and the repo's `CLAUDE.md` became a
+pointer that says to read that file before building, editing, reviewing or releasing.
+`polykybd-claude/CLAUDE.md` went from 22,664 B to one line per rule (10,672 B), and the
+full text of its web-session, branching, review and release sections was appended to
+the matching doc in `docs/`. After the move, all `CLAUDE.md` files together are 13.7 KB.
+
+The cost of the move: a session reads a repo's rules only when it follows the pointer,
+and a reviewer bot that reads the repo's `CLAUDE.md` as context sees only the pointer.

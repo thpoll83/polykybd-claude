@@ -7,9 +7,9 @@ description: Add a new PolyKybd HID command, or a new flag byte on an existing o
 
 The host connects across a **range** of firmware protocols and disables features
 individually, so every device-facing command needs a gate. The rules are real and
-enumerated — in `keyboards/polykybd/CLAUDE.md` ("Every new device-facing command
-MUST be version-gated — no exceptions") and in `PolyKybdHost/CLAUDE.md` — but they
-live in prose in two files, and the firmware CLAUDE.md notes the gate "has been
+enumerated — in `docs/repos/qmk_firmware.md` ("Every new device-facing command
+MUST be version-gated — no exceptions") and in `docs/repos/PolyKybdHost.md` — but they
+live in prose in two files, and the firmware rules note the gate "has been
 forgotten twice". This skill is the checklist.
 
 An **ungated** command does not fail cleanly: it connects, then NACKs at runtime on
@@ -158,17 +158,19 @@ make test:<name>
 
 ## 4. Land it
 
-- `CLAUDE.md` (firmware) — append a `**vN** adds …` paragraph to the HID protocol
-  list, saying what the command does, which direction the compatibility runs, and
+- `keyboards/polykybd/PROTOCOL_HISTORY.md` (firmware) — append a `**vN** adds …`
+  paragraph to the protocol list, saying what the command does, which direction the compatibility runs, and
   anything a reader would otherwise re-derive.
 - ⚠️ **Set the bump label at OPEN, and NOT `bump:protocol`** when you bumped
   `PROTOCOL_VERSION` in-source — the label would double-bump it. Since 1.0 a new command
   is usually a PATCH (no label): `bump:minor` only when it brings a feature an owner
-  would call new (see Releases in `CLAUDE.md`). A label
+  would call new (see Releases in `polykybd-claude/CLAUDE.md`). A label
   applied later races the merge and loses; `create_pull_request` cannot set labels,
   so follow it immediately with `issue_write` + `labels:`.
-- **Ship the two repos together**, and say so in both PR bodies. Which order is safe
-  depends on the change; work it out explicitly rather than assuming.
+- **Ship the two repos together**, and say so in both PR bodies. Publish the host
+  release first (`polykybd-claude/CLAUDE.md` → Releases): a new host gates the feature
+  off on older firmware, while an older host with new firmware leaves it off without a
+  message.
 
 ## Verify before you call it done
 
