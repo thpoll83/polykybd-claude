@@ -115,3 +115,18 @@ finished: the maintainer had declined each finding and CodeRabbit had accepted.
   threads, so it is not known whether the classifier allows it.
 - When neither works, list the open threads in your report and leave them to the user.
   An unresolved thread does not block a merge here.
+
+## A job cancelled after 15 minutes with no log
+
+On 2026-11-11 qmk#427's "PolyKybd unit tests" and the PR labeler both showed
+`cancelled` after exactly 15 minutes (21:38:50 → 21:53:51). GitHub had never given
+either job a runner. Three signs tell this apart from a cancelled test:
+
+- the job's `runner_name` is empty (`gh api repos/<owner>/<repo>/actions/jobs/<id>`);
+- its log returns `BlobNotFound` (HTTP 404), because no step ever ran;
+- no step has a conclusion.
+
+Re-run it once: `gh api -X POST repos/<owner>/<repo>/actions/runs/<run-id>/rerun-failed-jobs`
+(the run id, not the job id). On qmk#427 the re-run got a runner and passed. This is
+not the rig: a self-hosted HIL job that cannot start stays `queued` instead
+(`qmk_firmware/CLAUDE.md`).
