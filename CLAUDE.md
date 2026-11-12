@@ -135,6 +135,7 @@ Nothing in CI compares these copies. Change one, copy it to the others, and run
 |---|---|---|
 | `iso_lang_country.py` (frozen, append-only) | qmk `keyboards/polykybd/lang/`, host `polyhost/services/`, ctnd `station/` | host and rig decode the wrong languages |
 | `publish_release.py` | qmk, host, wincompose `scripts/` | a release gate missing in one copy (tests: host `tests/scripts/publish_release_test.py`) |
+| `publish-release.yml` | qmk, host `.github/workflows/` | the Flasher app's Publish runs different steps per repo |
 | `noto-fonts.yaml`, `fontpack_render_settings.json`, `lang_flags.json` | qmk (canonical) → host | the host's font dialogs pre-fill wrong values |
 | `quantum/keycodes.h` | qmk → host `polyhost/res/` | the layout editor shows wrong keycode names |
 
