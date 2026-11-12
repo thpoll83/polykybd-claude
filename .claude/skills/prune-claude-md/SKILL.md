@@ -5,6 +5,12 @@ description: Shrink a CLAUDE.md that has grown past its useful size by moving wh
 
 # Prune a CLAUDE.md without losing information
 
+⚠️ **Since 2026-11-12 each repo's `CLAUDE.md` is a 5-line pointer, and its rules are in
+`polykybd-claude/docs/repos/<repo>.md`.** Those files load only when read, so they cost
+no context at session start. Prune `polykybd-claude/CLAUDE.md` (one line per rule, the
+full text in a linked doc) and, when a rules file grows hard to read, move its
+subsystem detail into the repo's own docs. The procedure below applies to both.
+
 Every `CLAUDE.md` in an attached repo loads **in full at every session start**, so a
 repo's accumulated notes are a per-session tax whether or not the session touches that
 subsystem. These files are append-heavy by design and grow back; this is a recurring

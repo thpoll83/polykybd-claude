@@ -223,3 +223,64 @@ urllib.request.build_opener(urllib.request.ProxyHandler({})).open(
 
 Unfixed as of 2026-11-08. The fix must be applied to all three copies in one change,
 because nothing in CI compares them (see *Files kept byte-identical across repos*).
+
+## The full rules, moved from CLAUDE.md on 2026-11-12
+
+`CLAUDE.md` keeps a one-line version of each rule below and links here.
+
+### Releases
+
+Every repo releases by **publishing a GitHub Release**, never by pushing a tag. A
+pushed tag is placed on the auto-bump `[skip ci]` commit and triggers nothing. Tags:
+firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
+`polykybd-github-release` skill drives it.
+
+- ⚠️ **Each `release.yml` refuses a tag whose tree declares a different version.**
+  Otherwise the download claims one version, the install reports another, and the
+  updater offers the same release forever (wincompose `PK-0.9.19`). The fix is to MOVE
+  the tag, and only while no release holds it. Delete the release the refusal left
+  behind first.
+- ⚠️ **The version increase is label-driven and the label must be set AT OPEN.** It is read
+  at merge time, and a label added during the merge arrives too late. A request in the PR
+  body is not a label. `create_pull_request` cannot set labels, so call `issue_write`
+  with `labels:` right after opening. ⚠️ Then read the labels back a few minutes later.
+  The qmk labeler once overwrote `bump:minor`. `issue_write` replaces the list, so
+  re-set it in full (`["keyboard","bump:minor"]`).
+- ⚠️ **PATCH is the default; `bump:minor` is the exception** (maintainer's rule,
+  2026-10-03). Use it only for a feature an owner would call new. A `PROTOCOL_VERSION`
+  increase does not imply minor. When unsure, ask.
+- ⚠️ **A `PROTOCOL_VERSION` increase means BOTH firmware and host get released, and the
+  check is the PUBLISHED versions.** The connect gate is a range, not exact-match, so an
+  old host pairs with new firmware and silently leaves the new features off. Publish the
+  host first. Host and firmware version numbers are otherwise independent.
+- ⚠️ **A docs PR ships the moment it merges; host and firmware ship on a release.** A
+  docs page describing new behaviour waits for the release that contains it, or names
+  the required version on the page.
+- ⚠️ **Write that version only after its bump commit exists on the default branch.**
+  Parallel sessions merge in between and take the next numbers. docs#104 named 1.8.6;
+  qmk#361 and qmk#364 merged first and took 1.8.7 and 1.8.8, so the feature shipped in 1.8.9
+  and the page was wrong until docs#118.
+- ⚠️ **Name the version that gets PUBLISHED, not the bump that added the feature.** Every
+  merge takes a version, but a release covers many of them: the overlays page said a
+  feature needed firmware 1.9.13 and host 1.17.53, and the releases went from 1.9.12 to
+  1.9.15 and from 1.17.49 to 1.17.82, so no user could ever install either number. When
+  the release is not out yet, write the version the staged notes name
+  (`release-notes/<tag>.md`), and correct it if a merge moves the release.
+- ⚠️ **Read the PUBLISHED releases before you write or restage any version**:
+  `gh api repos/<owner>/<repo>/releases --jq '.[0].tag_name'`. A session summary or
+  your memory of "not released yet" is not evidence. On 2026-11-04 a summary said host
+  1.17.82 and firmware 1.9.15 were unpublished when both had been published that
+  morning. The session replaced their notes on `release-notes` and moved the docs
+  site's requirements to the next versions (docs#146 and a restore fixed both). The
+  notes of a published release stay as they are. The next notes cover only what
+  merged since that release.
+- ⚠️ **Other merges move the next version while you wait.** In under three hours on
+  2026-11-04 the host went from 1.17.83 to 1.17.87: five merges, three of them from
+  other sessions (host#507, #495, #531), and
+  the staged notes and the docs page were renamed three times. Before handing the
+  user the publish command, run `git log --oneline <last-published-tag>..origin/<default>`
+  and fold every user-facing merge into the notes.
+
+Both repos' original release bullets, verbatim: [`docs/releases.md`](releases.md).
+Action versions in our own workflows (the Node 24 majors, why the bump workflows
+stay on checkout v5): [`docs/github-actions.md`](github-actions.md).

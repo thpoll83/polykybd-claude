@@ -130,3 +130,76 @@ Re-run it once: `gh api -X POST repos/<owner>/<repo>/actions/runs/<run-id>/rerun
 (the run id, not the job id). On qmk#427 the re-run got a runner and passed. This is
 not the rig: a self-hosted HIL job that cannot start stays `queued` instead
 (`qmk_firmware/CLAUDE.md`).
+
+## The full rules, moved from CLAUDE.md on 2026-11-12
+
+`CLAUDE.md` keeps a one-line version of each rule below and links here.
+
+### The web session: what it cannot do
+
+- **You cannot push tags, create a release, delete a remote branch, or create a
+  repo.** The git proxy returns 403 on tag refs and branch deletes. There is no `gh`.
+  For a release, stage the notes and hand the user `python scripts/publish_release.py`.
+  Don't create scratch branches you cannot clean up, unless the user agrees first and
+  you give them the branch name to delete (the review-only draft in `triage-pr-review`).
+- ⚠️ **The clone is SHALLOW, and `git merge-base` then returns an EMPTY STRING, not an
+  error.** A diff against upstream or a tag-anchored range then gives a plausible wrong
+  answer. Run `git rev-parse --is-shallow-repository` first;
+  `git fetch origin --unshallow --no-recurse-submodules` fixes it.
+- ⚠️ **The checkout can be BEHIND what this session pushed, or be reset when the
+  container is reclaimed.** Nothing reports it. Before concluding that work is missing,
+  or that a review finding does not reproduce: `git log --oneline -1`, then
+  `git fetch origin <branch> && git log --oneline HEAD..FETCH_HEAD`. Work you remember
+  doing that left no trace is a checkout problem first and a code problem second.
+- ⚠️ **A transient 500 is not a capability limit.** `merge_pull_request` returned
+  500 with an empty body four times in one session while every read worked, and the
+  identical call succeeded first try two days later. The 403s above are the real limits
+  and they name themselves. Retry in a later turn before telling the user this session
+  type cannot do something.
+- ⚠️ **An `add_repo` clone fetches ONLY the default branch, so `git push -u` leaves
+  `@{u}` unresolvable and a pushed branch reads as unpushed.** The clone sets
+  `remote.origin.fetch` to `+refs/heads/main:refs/remotes/origin/main` alone, so the push
+  writes the tracking config with no `refs/remotes/origin/<branch>` to point at. `git
+  status` then says "no upstream", `git rev-list @{u}..HEAD` fails, and a stop hook
+  reports "1 unpushed commit and no remote branch" on a branch that is already on the
+  remote. Confirm with `git ls-remote origin refs/heads/<branch>` against `git rev-parse
+  HEAD` before believing it, then add a mapping for THAT branch and fetch it:
+  `git config --add remote.origin.fetch
+  '+refs/heads/<branch>:refs/remotes/origin/<branch>'` and
+  `git fetch origin <branch>`. ⚠️ **`--add`, not a plain set**, which exits 5 with
+  "cannot overwrite multiple values with a single value" once the key holds more than
+  one refspec (measured). ⚠️ **Not a `*` wildcard either**: it makes every later
+  `git fetch` and the documented `--unshallow` pull every branch, and qmk_firmware
+  has over 500 `claude/*` branches.
+- ⚠️ **`merge_pull_request`'s `expectedHeadSha` must be the full 40 characters.**
+  A sha rebuilt from an 8-character prefix returns `409 Head branch was modified` and
+  merges nothing; a wrong length returns "The sha parameter must be exactly 40
+  characters". Read `.head.sha` from `pull_request_read` for each merge rather than
+  reusing a short sha from a commit listing.
+- **Chromium is installed headless** (`/opt/pw-browsers/chromium`, also through
+  Playwright). Look at generated HTML, SVG and rendered pages instead of reasoning
+  about the markup.
+- **`gh api` works for reads** through the proxy, although the session says there is
+  no `gh`. A wait for a check run or a review is a bash `until` loop over
+  `gh api repos/<owner>/<repo>/commits/<sha>/check-runs` with a timeout, which is how
+  a push can wait for CodeRabbit's one included review per hour to finish instead
+  of cancelling it (2026-10-20). Re-running one job works:
+  `gh api -X POST repos/<owner>/<repo>/actions/jobs/<job-id>/rerun` (the HIL job on
+  qmk#404 after its ctnd test merged, 2026-10-24). Writes for a release or a tag stay
+  untested.
+- **Set the git identity before the first commit**: `git config user.email
+  noreply@anthropic.com && git config user.name Claude` in each repo. The stop hook
+  rejects an unpushed commit made with the user's address as "unverified" and asks
+  for an amend (2026-10-20).
+- ⚠️ **A `pkill -f` / `pgrep -f` pattern matches the shell that runs it, and kills it**
+  (exit 144, and every step chained after it is lost). The `[x]yz` bracket pattern
+  protects only the pattern argument: if the plain text appears anywhere else in the
+  same command line, such as a path, the shell still matches. Run `pgrep -af <name>`
+  as its own command, then `kill <PID>`.
+- ⚠️ **A background command is stopped at its time limit: 30 minutes by default, 2 hours
+  at most.** For a job that may run longer (a Blender render, a long build), detach the
+  job itself (`setsid nohup bash -c '…; echo EXIT $? >> job.log' &`) and wait with a
+  separate `until grep -q '^EXIT' job.log; do sleep 30; done` that has an explicit
+  `timeout`. A stopped watcher then costs nothing, because the job keeps running.
+
+Detail and the incidents behind these: [`docs/web-session.md`](web-session.md).
