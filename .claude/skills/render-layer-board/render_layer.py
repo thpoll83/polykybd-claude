@@ -71,6 +71,12 @@ def main() -> int:
     L = op.Lang(os.path.join(pk, "lang", "lang_lut.xlsx"), named)
     static = {**ld.parse_to_static_text_map(os.path.join(pk, "poly_keymap.c")),
               **ld.parse_static_text_map(os.path.join(pk, "keycode_helper.c"))}
+    # Expand the legend macros (MID_TWO_LINE(...) and friends) the way the export does,
+    # or build_frame draws the macro's NAME: the record key read "MID_".
+    macros = op.parse_function_macros(*(open(os.path.join(pk, f), encoding="utf-8").read() for f in
+                                        ("lang/named_glyphs.h", "keycode_helper.h",
+                                         "keycode_helper.c", "poly_keymap.c")))
+    static = {k: op.expand_function_macros(v, macros) for k, v in static.items()}
     ld.load_qmk_aliases(qmk, pk)
 
     kh = open(os.path.join(qmk, "quantum", "keycodes.h"), encoding="utf-8").read()
