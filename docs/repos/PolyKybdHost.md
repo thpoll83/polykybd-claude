@@ -347,6 +347,31 @@ Tests are unittest, not pytest; GUI tests need `xvfb-run -a`.
   the rule file grows. ⚠️ A POSIX-only name as a default argument (`_uid=os.getuid`)
   is evaluated at import and stopped the Windows tray (1.17.30, never published, #413).
 
+## Cloudflare (telemetry and agent relay)
+
+Two Workers on the maintainer's Cloudflare account (`*.polykybd.workers.dev`): the
+telemetry collector (`telemetry-collector/`) and the agent relay (`agent-relay/`,
+Claude Code cloud sessions to the agent keys). Two API tokens, each in ONE repo's
+Actions secrets. Names and scopes only here, never a value.
+
+| Cloudflare token | Permissions | Secret `CLOUDFLARE_API_TOKEN` in | Used by |
+|---|---|---|---|
+| `github-action-polyhost` | "Edit Cloudflare Workers" template + D1 Write (Workers Scripts Write, Account Settings Read, ...) | PolyKybdHost | `deploy-telemetry.yml`, `deploy-agent-relay.yml` |
+| `telemetry-data read` | D1 Read, Account Analytics Read | polykybd-telemetry-data | `export.yml` (daily export), `usage.yml` (usage alert) |
+
+- ⚠️ **Deleting the wrong one breaks deploys silently until the next push.** On
+  2026-11-13 the deploy token was deleted while cleaning up the read token; the relay's
+  first deploy failed with `Authentication error [code: 10000]` and `Invalid access
+  token [code: 9109]`. Keep the deploy token out of polykybd-telemetry-data: it can
+  change Workers.
+- ⚠️ **Cloudflare answers Python's default User-Agent (`Python-urllib/3.x`) on
+  workers.dev with 403 `error code: 1010`.** curl passes, so a curl smoke test does
+  not catch it. Every client of the relay sends its own User-Agent (`cloud_hook.py`:
+  `polykybd-cloud-hook/1`).
+- The free plan's daily limits (100,000 Worker and 100,000 Durable Object requests,
+  account-wide) are watched by polykybd-telemetry-data's `usage.yml`: it fails its run
+  at 80 %, and GitHub's failed-run email is the alert.
+
 ## Releases
 
 Host tag `vX.Y.Z`, version in `polyhost/_version.py`. Shared rules are in polykybd-claude;
