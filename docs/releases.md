@@ -261,7 +261,7 @@ firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
   size because firmware 1.13.5 (qmk#437) moves the thumb-row legend to the top left.
   Merged before 1.13.5 was published, each Space icon would erase 18 to 26 legend
   pixels on 1.13.4 boards. Say the required firmware version in the PR body and merge
-  after `releases/latest` names it.
+  after `releases/latest` names it or a later release that contains it.
 - ⚠️ **Before acting on "it is published", read the API.** On 2026-11-13 "1.13.5 is
   published" came while `releases/latest` was still 1.13.4 and no 1.13.5 tag existed.
   Check `gh api repos/<owner>/<repo>/releases/latest --jq .tag_name` and the tag ref.
