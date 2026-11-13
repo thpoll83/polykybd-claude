@@ -66,6 +66,9 @@ Each rule has its incident and full text in [`docs/web-session.md`](docs/web-ses
   `pgrep -af <name>` as its own command, then `kill <PID>`.
 - ⚠️ A background command stops at 30 min (2 h max). Detach a longer job with
   `setsid nohup` and wait on its log with a separate `until` loop.
+- ⚠️ A worktree from an earlier session can sit at an old commit. Check the exit code of
+  `git worktree add` and `git -C <wt> log -1` before you use one. Never `git checkout`
+  in a main checkout another session left on its branch: add a worktree.
 
 ## Branching
 

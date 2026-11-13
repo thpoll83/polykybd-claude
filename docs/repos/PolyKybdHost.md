@@ -106,6 +106,13 @@ brightness 10 min). [`docs/hid-worker-refactor.md`](../../../PolyKybdHost/docs/h
 - **`polyctl fw version` is a live query (cmd 0x43)** and fails with an error during a
   flash.
 - **No blocking the main thread with network I/O either.**
+- ⚠️ **`worker.run_sync()` submits with `front=True`**, so a sync call (every
+  `_device_call`) runs before jobs queued earlier. A queued job that acts on state it
+  read at submit time must check that state again when it runs, on the worker. A MIDI
+  guide cancel, queued by a focus change, ran after a manual `key_attention` that had
+  jumped ahead and stopped it (CodeRabbit on #813). The fix records a worker-side
+  counter in the guide's owner and compares it when the cancel runs
+  (`PolyCore._manual_ring_seq`).
 - ⚠️ **A submenu's device state, and a menu click's core call, run off the GUI
   thread** through `MenuFetcher` (`gui/menu_fetch.py`): a client-mode RPC has no
   timeout, and a menu that waited on it froze the tray. Clicks go through

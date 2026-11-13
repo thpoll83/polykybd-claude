@@ -42,6 +42,24 @@ and 2026-10-09.
 The safe form is two commands: `pgrep -af <name> | grep -v pgrep` to list, then
 `kill <PID>` with the numbers it printed.
 
+## A worktree or checkout left by another session
+
+_Added 2026-11-13, from the MIDI guide session._
+
+Worktrees survive in the container between sessions, including ones under the
+scratchpad. `git worktree add <path> origin/main` on a path that already exists fails
+with `fatal: '<path>' already exists`, and a `| tail -1` after it hides the error. The
+next command then runs in the old worktree. Here it was at `9079f1bd`, many merges
+behind `origin/main`, and the icon-library pending list it produced was wrong. Check the
+exit code, and run `git -C <wt> log --oneline -1` before you trust a worktree. To reuse
+one, check `git -C <wt> status --porcelain` is empty and move it with
+`git -C <wt> checkout --detach origin/main`.
+
+The main checkouts (`/home/user/<repo>`) may be on another session's feature branch.
+A `git checkout --detach origin/main` there moved `/home/user/PolyKybdHost` off
+`feat/per-app-glyph-script`; `git reflog` showed the old branch and it was switched
+back. Read code at another commit with `git show <ref>:<path>` or a worktree.
+
 ## Jobs longer than a background command's time limit
 
 A background Bash command is stopped when it reaches its `timeout`: 30 minutes when none
