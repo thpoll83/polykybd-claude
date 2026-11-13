@@ -160,6 +160,8 @@ Detail and incidents: [`docs/releases.md`](docs/releases.md). The
   the host first.
 - ⚠️ A docs PR ships when it merges. A page about new behaviour waits for the release, or
   names the version that gets published (the staged `release-notes/<tag>.md` if not out).
+- ⚠️ A host change that depends on a firmware version's drawing waits for that firmware
+  release, like a docs page (`docs/releases.md`).
 - ⚠️ Read the published releases before you write any version:
   `gh api repos/<owner>/<repo>/releases/latest --jq .tag_name`. Before handing over the
   publish command, fold every merge since the last published tag into the notes.
