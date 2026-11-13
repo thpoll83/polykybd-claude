@@ -69,6 +69,13 @@ export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"   # container: q
    loses it or delivers it cut off (40 of 100 rig reboots before qmk#400). Cmds 23,
    25, 43 and `FW_UP_APPLY` use it.
 2. `keyboards/polykybd/config.h` — `PROTOCOL_VERSION` += 1.
+   ⚠️ **Another session can take the same number at the same time.** Before you pick
+   N+1, list the open PRs in `qmk_firmware`, `PolyKybdHost` and `polykybd-ctnd` that
+   change `PROTOCOL_VERSION` or `__protocol__`. When one of them merges first, renumber
+   yours in all three repos (`config.h`, `PROTOCOL_HISTORY.md`, `_version.py`, the
+   `FEATURE_MIN_PROTOCOL` entry and the rig test's gate), then merge the base in. The
+   key guide was written as v33; runtime combos (qmk#428, another session) merged with
+   v33 first, so the guide became v34 in three repos (qmk#435, host#813, ctnd#147).
 3. If it needs to reach the **slave**, bridge it and check the ack with
    `sync_succeeded()` — never bool-test `send_to_bridge()`, every return is non-zero.
 4. If it persists, add the field to `poly_eeconf_t` / `poly_sync_t` and follow the
