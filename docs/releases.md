@@ -256,6 +256,15 @@ firmware `PolyKybd-fw-vX.Y.Z`, host `vX.Y.Z`, wincompose `PK-X.Y.Z`. The
 - ⚠️ **A docs PR ships the moment it merges; host and firmware ship on a release.** A
   docs page describing new behaviour waits for the release that contains it, or names
   the required version on the page.
+- ⚠️ **A host change that depends on how a firmware version draws waits for that
+  firmware release too.** PolyKybdHost#828 returned the Space overlay icons to full
+  size because firmware 1.13.5 (qmk#437) moves the thumb-row legend to the top left.
+  Merged before 1.13.5 was published, each Space icon would erase 18 to 26 legend
+  pixels on 1.13.4 boards. Say the required firmware version in the PR body and merge
+  after `releases/latest` names it.
+- ⚠️ **Before acting on "it is published", read the API.** On 2026-11-13 "1.13.5 is
+  published" came while `releases/latest` was still 1.13.4 and no 1.13.5 tag existed.
+  Check `gh api repos/<owner>/<repo>/releases/latest --jq .tag_name` and the tag ref.
 - ⚠️ **Write that version only after its bump commit exists on the default branch.**
   Parallel sessions merge in between and take the next numbers. docs#104 named 1.8.6;
   qmk#361 and qmk#364 merged first and took 1.8.7 and 1.8.8, so the feature shipped in 1.8.9
