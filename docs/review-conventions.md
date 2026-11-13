@@ -173,8 +173,13 @@ and relative links were adjusted to suit a standalone file.
     further push is unreviewed by it. On a long PR, expect to lose Sourcery
     partway and ask CodeRabbit by hand for the pushes that matter.
   - **Revix (`revix-ai-review[bot]`) reviews PolyKybdHost on every push** and
-    labels each inline finding. `**issue:**` is blocking: verify it and fix
-    what is real. `**suggestion:**` is optional under the PR rules: reply,
+    labels each inline finding. **Since 2026-11-13 it can also be asked by hand:**
+    post `@revix-ai-review review` as a COMMENT (the maintainer turned on its
+    on-demand review). Use it for a push it did not review, such as the fix push
+    after its findings or a PR that arrived after the daily quota ran out. Each
+    request uses the same few free reviews a day (reset 00:00 UTC), so ask on the
+    PR that merges next, not on every push. Its labels: `**issue:**` is
+    blocking: verify it and fix what is real. `**suggestion:**` is optional under the PR rules: reply,
     resolve, and fix it only in a push you are making anyway. Some findings name
     a repo rule (`📏 Rule: explicit-utf8-encoding`). ⚠️ Its
     `lazy-import-optional-deps` rule flags a module-level `import numpy` in
