@@ -105,6 +105,8 @@ Detail: [`docs/review-conventions.md`](docs/review-conventions.md) and the
 - Revix can also be asked by hand (on-demand review, on since 2026-11-13): post
   `@revix-ai-review review` as a comment, for example on a push it skipped. Each
   request uses the organization's few free reviews a day (reset 00:00 UTC).
+- ⚠️ When no other bot can review a PR (CodeRabbit rate-limited or refused, Sourcery out
+  of budget, the others paused), ask Revix by hand. Do not leave the PR unreviewed.
 - ⚠️ A green board is not a review. Check `get_reviews` and each review's `commit_id`.
   On a host PR that changes Python, read `github-advanced-security[bot]` comments too:
   a green CodeQL check can still have findings.
