@@ -229,6 +229,12 @@ and relative links were adjusted to suit a standalone file.
     When they are out, CodeRabbit's one review per hour is the only one left, for all
     repos together. Spend it on the PR that has no other review, and set a reminder
     for the next hour instead of asking again at once.
+    ⚠️ **Since 2026-11-14 (maintainer's rule): when no other bot can review a PR,
+    ask Revix by hand** with `@revix-ai-review review`. "Cannot review" means
+    CodeRabbit refused the request as rate limited or skipped it, Sourcery answered
+    "you've used your own review budget" or "too large", and Greptile and Qodo are
+    over their limits or paused. On PolyKybdHost#875 Sourcery was out of budget and Revix
+    was asked by hand.
   - ⚠️ **By 2026-10-08 CodeRabbit auto-review was OFF on all four repos, not only
     `polykybd-docs`.** On qmk#359, host#322 and ctnd#110 it posted *"Review skipped
     — Auto reviews are disabled on this repository"*, and it said the same again on
