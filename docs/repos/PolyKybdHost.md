@@ -72,6 +72,12 @@ control-socket method.
   PCB overlay drawn for any KiCad window. The windowless path evaluates templates on
   that flag, so an app-name-only entry still gets its artwork -- VS Code's macOS branch has three
   templates and no `title:`, and was never evaluated before (2026-10-16 bundle).
+- ⚠️ **The window handler cuts the process name at the FIRST dot and lowercases it**
+  (`active_window.py`), so `Game.dat` reaches the mapping as `game`. A generic name
+  like that needs a `title:` regex on its entry, and a routing test must pass the cut
+  name: `mapping_key("Game.dat", …)` finds nothing (C&C Generals, #874, 2026-11-15;
+  `tests/handler/generals_routing_test.py`). Only `_app_key` in `browser_url.py`
+  strips `.exe` alone.
 - ⚠️ **On macOS the window tick costs seconds, not milliseconds, and the accept timer
   must count REAL time.** pywinctl spends two `osascript` processes per
   `getActiveWindow()`; a tick measured 2.30 s median against a 250 ms cycle. With the
