@@ -178,7 +178,10 @@ and relative links were adjusted to suit a standalone file.
     on-demand review). Use it for a push it did not review, such as the fix push
     after its findings or a PR that arrived after the daily quota ran out. Each
     request uses the same few free reviews a day (reset 00:00 UTC), so ask on the
-    PR that merges next, not on every push. Its labels: `**issue:**` is
+    PR that merges next, not on every push. ⚠️ An on-demand review can come back
+    as a check run only: a `Revix Review` check with the title "Ready to merge" and a
+    summary, and no review or comment (PolyKybdHost#877, 2026-11-15). Read the check
+    run's output before waiting for a review. Its labels: `**issue:**` is
     blocking: verify it and fix what is real. `**suggestion:**` is optional under the PR rules: reply,
     resolve, and fix it only in a push you are making anyway. Some findings name
     a repo rule (`📏 Rule: explicit-utf8-encoding`). ⚠️ Its
