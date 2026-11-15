@@ -72,6 +72,12 @@ control-socket method.
   PCB overlay drawn for any KiCad window. The windowless path evaluates templates on
   that flag, so an app-name-only entry still gets its artwork -- VS Code's macOS branch has three
   templates and no `title:`, and was never evaluated before (2026-10-16 bundle).
+- ⚠️ **The window handler cuts the process name at the FIRST dot and lowercases it**
+  (`active_window.py`), so `Game.dat` reaches the mapping as `game`. A generic name
+  like that needs a `title:` regex on its entry, and a routing test must pass the cut
+  name: `mapping_key("Game.dat", …)` finds nothing (C&C Generals, #874, 2026-11-15;
+  `tests/handler/generals_routing_test.py`). Only `_app_key` in `browser_url.py`
+  strips `.exe` alone.
 - ⚠️ **On macOS the window tick costs seconds, not milliseconds, and the accept timer
   must count REAL time.** pywinctl spends two `osascript` processes per
   `getActiveWindow()`; a tick measured 2.30 s median against a 250 ms cycle. With the
@@ -230,6 +236,13 @@ Menus, theme, brightness rows, WinCompose install, unicode-mode watcher:
 per-application ESC mark has a rule of **no per-application configuration**:
 [`docs/generic-icons-plan.md`](../../../PolyKybdHost/docs/generic-icons-plan.md).
 
+- ⚠️ **`editor_plugins.install()` and `remove()` skip their file scan when given
+  `statuses=`.** A cached `STATE_INSTALLED` then lets `remove()` delete plugin files the
+  user edited by hand since the page was shown. Pass `statuses=None` right before a
+  change. That scan can start GDB (up to 10 s), so a GUI page runs the change on its
+  worker thread (`RowsPage.APPLY_ON_THREAD`) and reads its widgets first, on the GUI
+  thread, in `before_apply()` (CodeRabbit on #877; the old shell title dialog had the
+  same call).
 - **The tray app and the forwarder are translated into 20 languages**
   ([`docs/i18n.md`](../../../PolyKybdHost/docs/i18n.md)). Every string a user reads in `gui/`, `host.py` or
   `forwarder.py` goes through `_()`, `_f()` or `_nf()` from `polyhost.i18n`;
@@ -343,6 +356,20 @@ Tests are unittest, not pytest; GUI tests need `xvfb-run -a`.
 - ⚠️ **A stale `.pyc` can survive a correct fix.** Clear `__pycache__` after restoring too.
 - ⚠️ **`polyhost/forwarder.py` is untestable here** (pywinctl at import). Put logic worth
   testing in a Qt-free module.
+- ⚠️ **A test file's import guard catches only `ImportError` from PyQt5.** Import the
+  application modules outside the `try`: an `except Exception` around them turns a
+  broken module into skipped tests and an `OK` run (CodeRabbit on #877, 31 tests).
+- ⚠️ **Windows PowerShell 5.1: `& tool.exe | Select-Object -First 1` stops the native
+  program early, and `$LASTEXITCODE` is then not 0.** Read all output first:
+  `$out = @(& tool.exe ...)`, check `$LASTEXITCODE`, then take `$out[0]`.
+  `install-app.ps1` failed this way only under 5.1, after `uv python install` had
+  worked; the same step passed under PowerShell 7 (#875). CI runs both shells.
+- ⚠️ **A script run with `irm ... | iex` runs in the user's own session.**
+  `$ErrorActionPreference`, `$ProgressPreference`, the script's variables and every
+  `$env:` value it sets stay after it ends. Wrap the body in `& { ... }` and save and
+  restore process environment variables in `finally` (`install-app.ps1`, Revix on
+  #875: a leaked `UV_PYTHON_INSTALL_DIR` sent the user's next `uv python install` into
+  the PolyKybd folder).
 - **Linux HID access and the fast link need the udev rule** `polyhost/device/99-hid.rules`
   (hidraw and tty lines). The tray offers the install through pkexec
   (`services/linux_udev.py`); `scripts/install.sh` copies the same file. Never write a
