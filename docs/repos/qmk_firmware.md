@@ -283,6 +283,17 @@ placement: [`LEGEND_LAYOUT.md`](../../../qmk_firmware/keyboards/polykybd/LEGEND_
 Twelve custom transaction IDs send state to the slave with CRC32 and up to 10 retries.
 [`SPLIT_SYNC.md`](../../../qmk_firmware/keyboards/polykybd/SPLIT_SYNC.md).
 
+- ⚠️ **State that a host HID report sets reaches the slave as that report, never as
+  new `poly_sync_t` fields** (maintainer's rule, 2026-11-15). Copy the report into
+  `dynamic_keymap_sync_t.commands` and send it on `USER_SYNC_DYNAMIC_KEYMAP_DATA`, as
+  cmd 14 and the keymap writes do (`hid_com.c`); the slave's handler dispatches on the
+  command byte. The overlay uploads do the same on their own transactions
+  (`fill_overlay.c`: the report's bytes plus the target slot). `poly_sync_t` is resent whole on every state change, so each byte added
+  there costs every sync; a report is at most 64 bytes, so it needs no second cap. Keep
+  `poly_sync_t` for state the master derives itself. A relayed report has no automatic
+  resend: keep the last one and resend it from housekeeping until `sync_succeeded()`.
+  Detail: [`SPLIT_SYNC.md`](../../../qmk_firmware/keyboards/polykybd/SPLIT_SYNC.md) →
+  *Host state goes to the slave as the report*.
 - ⚠️ **`RPC_M2S_BUFFER_SIZE` is a silent ceiling.** An oversized payload is dropped
   before sending, and bulk call sites discard the ack. Add a `static_assert` for any
   struct that can grow. It is 252 (sized for the firmware relay chunk); QMK's RPC
