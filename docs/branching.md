@@ -314,8 +314,13 @@ retargeted by hand. A rule that says "wait for `base.ref` to change" waits
 forever here.
 
 ⚠️ **A stacked PR also gets no CodeQL until it targets `main`** — see
-`review-conventions.md`. Expect a first round of findings right after the
-retarget, and budget for it before the merge.
+`review-conventions.md`. ⚠️ The retarget alone does not start CodeQL either: the
+workflow runs on `opened`, `synchronize` and `reopened`, and a retarget is `edited`.
+It runs on the first push after the retarget. Merge the latest `main` into the branch
+(its version-bump commit is enough) and push; never push an empty commit for it.
+PolyKybdHost#921 (2026-11-16) had no "Analyze Python" run for an hour after the
+retarget; the merge of main's 1.27.1 bump started it. Expect a first round of
+findings after that push, and budget for it before the merge.
 
 ### After a squash-merged base: merging `main` into the stacked branch
 

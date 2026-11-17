@@ -60,6 +60,15 @@ A `git checkout --detach origin/main` there moved `/home/user/PolyKybdHost` off
 `feat/per-app-glyph-script`; `git reflog` showed the old branch and it was switched
 back. Read code at another commit with `git show <ref>:<path>` or a worktree.
 
+## A job started with `&` inside a foreground command
+
+⚠️ A job started with a plain `&` inside a foreground Bash call is stopped when that
+call returns, however short the job is. Its log just ends, with no result line. On
+2026-11-16 the PolyKybdHost suite started as `( xvfb-run … > full.log 2>&1; echo EXIT
+$? >> full.log ) &` stopped writing after 3 minutes; the same command as a background
+Bash command (`run_in_background`) ran 6573 tests to the end. Start a job as a
+background command, or detach it with `setsid nohup` as below.
+
 ## Jobs longer than a background command's time limit
 
 A background Bash command is stopped when it reaches its `timeout`: 30 minutes when none
