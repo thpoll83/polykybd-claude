@@ -181,7 +181,12 @@ and relative links were adjusted to suit a standalone file.
     PR that merges next, not on every push. ⚠️ An on-demand review can come back
     as a check run only: a `Revix Review` check with the title "Ready to merge" and a
     summary, and no review or comment (PolyKybdHost#877, 2026-11-15). Read the check
-    run's output before waiting for a review. Its labels: `**issue:**` is
+    run's output before waiting for a review. ⚠️ A request can also stop after its
+    "On it — reviewing `<sha>`" reply: no comment, no review and no check run follow.
+    On PolyKybdHost#921 (2026-11-16) nothing came 55 minutes after "On it". Wait
+    about 30 minutes, then ask CodeRabbit at its next hourly slot, and ask Revix
+    again on the next push (the second request on #921 came back as a clean check
+    run). Its labels: `**issue:**` is
     blocking: verify it and fix what is real. `**suggestion:**` is optional under the PR rules: reply,
     resolve, and fix it only in a push you are making anyway. Some findings name
     a repo rule (`📏 Rule: explicit-utf8-encoding`). ⚠️ Its
