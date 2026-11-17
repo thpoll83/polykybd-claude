@@ -206,7 +206,7 @@ keycodes stay on the release edge. [`KEYCODE_HANDLING.md`](../../../qmk_firmware
 ### HID protocol
 
 Byte 0 report ID, byte 1 command ID, byte 2+ payload; replies `"P\xNN."` (ACK) or
-`"P\xNN!"` (NACK). `PROTOCOL_VERSION` (35, `config.h`) gates host features. Read
+`"P\xNN!"` (NACK). `PROTOCOL_VERSION` (37, `config.h`) gates host features. Read
 [`PROTOCOL_HISTORY.md`](../../../qmk_firmware/keyboards/polykybd/PROTOCOL_HISTORY.md) before changing any
 command; several were shaped by a contrast the wire format does not show. A new command
 goes through the `add-gated-hid-command` skill.
