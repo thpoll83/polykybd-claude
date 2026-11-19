@@ -56,6 +56,10 @@ check "publish_release.py  qmk vs host" \
 check "publish_release.py  qmk vs wincompose" \
       "$QMK/scripts/publish_release.py" "$ROOT/wincompose/scripts/publish_release.py"
 
+echo "--- publish workflow (qmk = host) ---"
+check "publish-release.yml  qmk vs host" \
+      "$QMK/.github/workflows/publish-release.yml" "$HOST/.github/workflows/publish-release.yml"
+
 echo "--- shared skills live ONLY in polykybd-claude ---"
 SHARED="$ROOT/polykybd-claude/.claude/skills"
 if [ ! -d "$SHARED" ]; then

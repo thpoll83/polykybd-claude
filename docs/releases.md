@@ -22,6 +22,14 @@ skill; the mechanics, the `release-notes` branch and `scripts/publish_release.py
   the three repos with a Python runner, so a break introduced here fails
   there.
 
+- **`.github/workflows/publish-release.yml` runs `publish_release.py` on GitHub**
+  (`qmk_firmware` and `PolyKybdHost`, byte-identical). Start it from the Actions tab or
+  from the PolyKybd Flasher app's Maintenance menu (`PolyKybdHost/android/README.md`).
+  `dry_run` is on by default. Publishing needs the repo secret `RELEASE_TOKEN`
+  (fine-grained, Contents read/write): a release made with the built-in `GITHUB_TOKEN`
+  does not start `release.yml`, so the firmware would get no `.bin`/`.uf2`. Only the
+  repository owner's run publishes. A web session still cannot dispatch it.
+
 - ⚠️ **The assets are named from the TAG, and `release.yml` now REFUSES a tag whose
   tree declares a different `FW_VERSION`** — its first step, before the build and before
   the fwapply gate, so a refusal changes nothing. Otherwise a release published before
