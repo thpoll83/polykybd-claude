@@ -93,6 +93,8 @@ Detail: [`docs/review-conventions.md`](docs/review-conventions.md) and the
 - ⚠️ Review traffic belongs on the PR, not in the chat. Tell the user only a declined
   finding (one line, with why), a blocker, and the end state.
 - Ignore CodeRabbit's "Docstring Coverage 80%" check.
+- J-Bot (Gemini) reviews every same-repo PR in the six code repos; a red `review`
+  check is a J-Bot error (model, quota), not a finding. Detail: `docs/review-conventions.md`.
 - Verify every AI reviewer finding against the code. Fix the true ones. Decline the
   false ones on the thread with the counter-evidence.
 - ⚠️ Name the check you ran, not a stronger one ("read the code" is not "ran the test").
