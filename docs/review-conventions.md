@@ -195,6 +195,23 @@ and relative links were adjusted to suit a standalone file.
     (`requirements.txt`) and `game_assets/build.py` imports it before any reader
     loads, so a lazy import there saves nothing; decline it with that evidence
     (PolyKybdHost#495, 2026-11-04).
+  - **J-Bot (`github-actions[bot]`, review titled "J-Bot Code Review") reviews every
+    same-repo, non-draft PR** in qmk_firmware, PolyKybdHost, polykybd-ctnd,
+    wincompose, Adafruit-GFX-Library and gnome-wayland-winreader (since 2026-11-19).
+    It runs as the `review` job of `.github/workflows/jbot-review.yml`, the same file
+    in all six repos: change one, copy it to the others. It uses Google Gemini
+    (`google/gemini-3.8-flash`; a `JBOT_REVIEW_MODEL` repository variable overrides
+    it) with the `GEMINI_API_KEY` secret of each repo, on the maintainer's paid tier.
+    It skips fork PRs, drafts, Dependabot and merged PRs. It cannot be asked by hand:
+    a push, reopen or ready-for-review starts it. A clean review says "Good to go
+    from jbot-review" with "No new findings"; the review body names the commit it
+    read. Verify its findings like any other bot's.
+    ⚠️ A red `review` check is a J-Bot error, not a finding: read the job log. On
+    2026-11-19 it failed first because Google had retired `gemini-2.5-flash`, then
+    because six PRs at once used up the free tier (20 requests a day; one review
+    uses 3 or 4). The check is not required, so it does not block a merge.
+    ⚠️ The action and checkout are pinned to commit SHAs, but the action runs the
+    image `ghcr.io/pgup-ai/jbot-review:latest`, which is not pinned.
   - ⚠️ **On a busy day every free quota runs out, and each bot says so in its
     own way.** On 2026-11-05 seven host PRs in four hours hit all of them:
     Revix posted a review with a "free quota reached" badge (it resumes at
