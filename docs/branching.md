@@ -339,6 +339,25 @@ additions/deletions before pushing. Seen on the firmware's #324 → #325 (2026-1
 seven conflicted files, of which only `config.h` differed, by the version auto-bump,
 and the result matched the PR's +374/−104.
 
+### Reusing a session's designated branch after its PR merged
+
+The session instructions can name a branch that must keep its name. First find out
+how its PR was merged, because only a squash needs the workaround below:
+
+```bash
+git fetch origin <default> "+refs/heads/<branch>:refs/remotes/origin/<branch>"   # stop if it fails
+git merge-base --is-ancestor origin/<branch> origin/<default> && echo "merge commit: no force push needed"
+```
+
+- **Merge commit (`yes`):** the old branch head is an ancestor of the default branch.
+  Cut the branch from the default branch and push normally, which is a fast-forward:
+  `git checkout -B <branch> origin/<default>`, commit, `git push -u origin <branch>`,
+  then open a NEW pull request. Check this first. On 2026-11-21 a host session assumed
+  a force push was needed after merging #995 with a merge commit. It pushed the new
+  work to a second branch name, then the classifier refused the force push, and the
+  work sat on the wrong branch until the plain push was tried (host#1008).
+- **Squash (`no`):** the old head is not an ancestor. Use the next section.
+
 ### Reusing a squash-merged branch when a force push is refused
 
 This is an exception to the fresh-branch rule for one case only: the session
