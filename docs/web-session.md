@@ -143,6 +143,25 @@ finished: the maintainer had declined each finding and CodeRabbit had accepted.
 - When neither works, list the open threads in your report and leave them to the user.
   An unresolved thread does not block a merge here.
 
+## The GraphQL API is refused
+
+`gh api graphql` returns HTTP 403 ("GitHub GraphQL is not available from Claude Code
+sessions"), seen on 2026-11-21. Use REST instead. Review threads and their `resolved`
+state: `gh api repos/<owner>/<repo>/pulls/<n>/ccr/review_threads`.
+
+## The same change in several repos with one shell loop
+
+On 2026-11-21 one loop committed a README change in seven repos. Two commands did
+nothing in some repos, and the loop did not stop:
+
+- `git add -A README.md readme.md` stages nothing when one of the two names does not
+  exist in that repo. The commit then fails, and the push sends the old branch.
+- `git diff --name-only HEAD~1 HEAD` is empty when `HEAD` is a merge commit, so a
+  file name taken from it is empty.
+
+Name each repo's file explicitly, and print each repo's new commit and its
+`git ls-remote` value before you call the change done.
+
 ## A job cancelled after 15 minutes with no log
 
 On 2026-11-11 qmk#427's "PolyKybd unit tests" and the PR labeler both showed

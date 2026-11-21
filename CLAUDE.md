@@ -135,6 +135,10 @@ English that a non-native reader can follow (maintainer's rule, 2026-10-15).
 - **Cut what the reader does not act on**: design rationale, older-version history, how a
   render was made, and text that repeats the same page.
 - Real technical terms (CRC, magic number, backpressure) and product names stay.
+- A README says nothing about CI or bot coverage: each repo checks a different set of
+  changes, so the claim is wrong somewhere. Point security reports to `SECURITY.md`.
+- ⚠️ Settle public wording with the maintainer before pushing it to several repos. Ask
+  before a push, comment or text change across repos (maintainer's feedback, 2026-11-21).
 
 ## Files kept byte-identical across repos
 
