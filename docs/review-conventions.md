@@ -212,6 +212,11 @@ and relative links were adjusted to suit a standalone file.
     uses 3 or 4). The check is not required, so it does not block a merge.
     ⚠️ The action and checkout are pinned to commit SHAs, but the action runs the
     image `ghcr.io/pgup-ai/jbot-review:latest`, which is not pinned.
+    ⚠️ A push with no new findings gets no new J-Bot review. When J-Bot has already
+    reviewed the PR, a clean re-run only adds a reaction, so the newest commit shows
+    no J-Bot review. That is not a skip. The `review` job log says "Review complete:
+    0 main + 0 lens + 0 compliance finding(s)" and "No new findings on a re-run;
+    skipping the review comment (reacting instead)" (wincompose#36, 2026-11-21).
   - ⚠️ **On a busy day every free quota runs out, and each bot says so in its
     own way.** On 2026-11-05 seven host PRs in four hours hit all of them:
     Revix posted a review with a "free quota reached" badge (it resumes at
