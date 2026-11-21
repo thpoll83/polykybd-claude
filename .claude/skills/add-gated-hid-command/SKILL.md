@@ -61,7 +61,7 @@ store.
 export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"   # container: qmk is off PATH
 ```
 
-1. `keyboards/polykybd/hid/hid_com.c` — add the `case NN:` (or read the new byte).
+1. `keyboards/polykybd/lib/hid/hid_com.c` — add the `case NN:` (or read the new byte).
    Reply with `hid_reply(data, NN, ok)` + `raw_hid_send`; NACK an out-of-range value
    unless the range is deliberately open.
    ⚠️ **A command that resets the board replies with `raw_hid_send_before_reset()`.**

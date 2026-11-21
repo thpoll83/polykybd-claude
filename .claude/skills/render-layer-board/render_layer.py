@@ -68,15 +68,15 @@ def main() -> int:
     pk = os.path.join(qmk, "keyboards", "polykybd")
     R = op.load_renderer(font_dir(pk))
     named = op.load_named_glyphs(os.path.join(pk, "lang", "named_glyphs.h"),
-                                 fw_file(pk, "keymap/keycode_helper.h"))
+                                 fw_file(pk, "keys_com/keycode_helper.h"))
     L = op.Lang(os.path.join(pk, "lang", "lang_lut.xlsx"), named)
-    static = {**ld.parse_to_static_text_map(fw_file(pk, "keymap/poly_keymap.c")),
-              **ld.parse_static_text_map(fw_file(pk, "keymap/keycode_helper.c"))}
+    static = {**ld.parse_to_static_text_map(fw_file(pk, "keys_com/poly_keymap.c")),
+              **ld.parse_static_text_map(fw_file(pk, "keys_com/keycode_helper.c"))}
     # Expand the legend macros (MID_TWO_LINE(...) and friends) the way the export does,
     # or build_frame draws the macro's NAME: the record key read "MID_".
     macros = op.parse_function_macros(*(open(fw_file(pk, f), encoding="utf-8").read() for f in
-                                        ("lang/named_glyphs.h", "keymap/keycode_helper.h",
-                                         "keymap/keycode_helper.c", "keymap/poly_keymap.c")))
+                                        ("lang/named_glyphs.h", "keys_com/keycode_helper.h",
+                                         "keys_com/keycode_helper.c", "keys_com/poly_keymap.c")))
     static = {k: op.expand_function_macros(v, macros) for k, v in static.items()}
     ld.load_qmk_aliases(qmk, pk)
 
@@ -100,7 +100,7 @@ def main() -> int:
     # keyed KC_MEDIA_PREV_TRACK: fold each plain token onto a name we can draw first.
     known = set(static) | set(op.ROW)
     folded = {mp: ld.normalize_kc(t, known) for mp, t in zip(mats, toks)}
-    ime = ld.parse_ime_key(fw_file(pk, "keymap/poly_keymap.c"), L.langs)
+    ime = ld.parse_ime_key(fw_file(pk, "keys_com/poly_keymap.c"), L.langs)
     frame = ld.build_frame(L, R, folded, a.lang, static, ime=ime)
     for mp, t in zip(mats, toks):
         long = midi_alias.get(t, t)
