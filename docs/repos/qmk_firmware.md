@@ -11,7 +11,7 @@ Folders: the sources are grouped in `keymap/`, `display/`, `hid/`, `split_link/`
 `fw_update/`, `system/`, `peripherals/`, `modes/`, `drivers/` (hardware) and `base/` (code
 the unit tests link). The root keeps only what QMK and keymaps need. Every doc is in
 `docs/`, listed in [`docs/README.md`](../../../qmk_firmware/keyboards/polykybd/docs/README.md),
-which also records where each file moved in 2026-11.
+which also records where each file moved.
 
 This file holds
 only firmware rules. Each section names the doc with the full detail and history; read
@@ -255,7 +255,7 @@ goes through the `add-gated-hid-command` skill.
 
 Cmd 27 packs each `xx-YY` code as two indices into the frozen, append-only table in
 `lang/iso_lang_country.py`, which is mirrored in host and rig (see polykybd-claude).
-Re-run `cog -r hid_com.c` after changing the list or the table. `NUM_LANG` is 161.
+Re-run `cog -r hid/hid_com.c` (from `keyboards/polykybd/`) after changing the list or the table. `NUM_LANG` is 161.
 Adding a language: the `add-polykybd-language` skill and
 [`docs/lang/future-languages.md`](../../../qmk_firmware/keyboards/polykybd/docs/lang/future-languages.md).
 
