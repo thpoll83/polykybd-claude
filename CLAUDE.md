@@ -76,6 +76,9 @@ Detail and worked examples: [`docs/branching.md`](docs/branching.md).
 
 - Start every piece of work on a fresh branch from the updated default branch. A merged
   branch is done; a push to it orphans the commit.
+- ⚠️ A session's designated branch whose PR was merged with a merge commit needs no force
+  push: `git checkout -B <branch> origin/<default>`, then push normally. Only a squash
+  needs the workaround (`docs/branching.md` → *Reusing a session's designated branch*).
 - ⚠️ A cross-repo feature can leave one repo with commits pushed and no PR. Only a GitHub
   query finds it: the `cross-repo-pr-sweep` skill.
 - ⚠️ A merged badge is not proof the work reached the default branch. Check its changes
