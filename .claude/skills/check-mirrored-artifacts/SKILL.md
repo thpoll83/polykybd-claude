@@ -30,7 +30,7 @@ and is evidence the discipline is working rather than that the check is unnecess
 |---|---|---|
 | `iso_lang_country.py` | qmk `lang/`, host `polyhost/services/`, ctnd `station/` | the rig and host decode **wrong languages** |
 | `noto-fonts.yaml` | qmk `fonts/`, host `polyhost/res/fonts/` | the host's "Download Noto…" fetches a different catalogue |
-| `fontpack_render_settings.json` | qmk `base/fonts/generated/`, host `polyhost/res/fontpack/` | the font-pack **edit** dialog pre-fills the wrong render options |
+| `fontpack_render_settings.json` | qmk `fonts/generated/`, host `polyhost/res/fontpack/` | the font-pack **edit** dialog pre-fills the wrong render options |
 | `lang_flags.json` | same two | the editor cannot rebuild a flag glyph correctly |
 | `keycodes.h` | qmk `quantum/`, host `polyhost/res/` | the layout editor shows wrong keycode names, files new ones under the wrong tab, and offers values the firmware moved |
 | `publish_release.py` | qmk + host + wincompose `scripts/` | a release gate present in one copy and absent in another, which is how wincompose shipped two mislabelled releases |
@@ -61,7 +61,7 @@ the output still match what is committed":
 
 | artifact | generator | the check |
 |---|---|---|
-| `base/fonts/generated/*.h` + `gfx_used_fonts.h` | `fonts/generate_fonts.py` | `python3 fonts/generate_fonts.py --check` |
+| `fonts/generated/*.h` + `gfx_used_fonts.h` | `fonts/generate_fonts.py` | `python3 fonts/generate_fonts.py --check` |
 | `fontpack.manifest.json` | same | covered by `--check` |
 | host `polyhost/res/layer_names.yaml` | its export script | ⚠️ **fallback only** since the rot — the keyboard states its own names over HID cmd 35 |
 | host preview data | `scripts/export_preview_data.py` | `python3 tools/preview_doctor.py` |

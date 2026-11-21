@@ -2,7 +2,7 @@
 
 Moved 2026-10-10 from the Releases sections of `qmk_firmware/CLAUDE.md` and
 `PolyKybdHost/CLAUDE.md`, verbatim. The per-repo mechanics stay in each repo:
-qmk `keyboards/polykybd/RELEASES.md`, host `docs/releases.md`, wincompose `RELEASE.md`.
+qmk `keyboards/polykybd/docs/build/releases.md`, host `docs/releases.md`, wincompose `RELEASE.md`.
 
 ## As written in the firmware CLAUDE.md
 
@@ -10,7 +10,7 @@ Firmware releases are **GitHub Releases** (tag `PolyKybd-fw-vX.Y.Z`; `FW_VERSION
 `config.h`), created by **publishing** — *not* by pushing a tag, which lands on the
 auto-bump `[skip ci]` commit and triggers nothing. Use the `polykybd-github-release`
 skill; the mechanics, the `release-notes` branch and `scripts/publish_release.py` are in
-[`keyboards/polykybd/RELEASES.md`](../../qmk_firmware/keyboards/polykybd/RELEASES.md).
+[`keyboards/polykybd/docs/build/releases.md`](../../qmk_firmware/keyboards/polykybd/docs/build/releases.md).
 
 - ⚠️ **`scripts/publish_release.py` is byte-identical across `qmk_firmware`,
   `PolyKybdHost` and `wincompose`, nothing checks that, and it had already
@@ -39,7 +39,7 @@ skill; the mechanics, the `release-notes` branch and `scripts/publish_release.py
   advertised number. wincompose shipped exactly that (`PK-0.9.19`). ⚠️ **The fix is to
   MOVE the tag, and only while no release holds it** — publishing never moves one, and
   a dispatch would build the dispatch ref and leave the tag on the old tree. Delete the
-  assetless release the refusal left behind first. `RELEASES.md` → the asset-naming
+  assetless release the refusal left behind first. `docs/build/releases.md` → the asset-naming
   bullet has both refusal cases.
 
 - ⚠️ **Publishing is GATED on a green firmware-APPLY run for the commit being released**

@@ -390,7 +390,7 @@ the asset list must be non-empty about 5 minutes after publishing (`.bin`, `.bin
 `.uf2`, `.plyx`). A published release with notes and `"assets": []` means `release.yml`
 refused at a gate before uploading. v1.9.1 and v1.9.2 both went out like that, and the
 host updater then shows "no flashable .bin". Read the failed step's log. For the
-firmware-apply gate, follow `qmk_firmware/keyboards/polykybd/RELEASES.md` → *Recovery
+firmware-apply gate, follow `qmk_firmware/keyboards/polykybd/docs/build/releases.md` → *Recovery
 when it refuses*. A re-run of the release run attaches the files to the release that is
 already published. A 404 means it wasn't published yet — a **pushed tag alone never creates the release** (see the `[skip ci]`
 note above).

@@ -80,6 +80,6 @@ python visualize_font.py path/to/Font.h --out-dir out/   # contact sheet of ever
 
 The firmware drives generation from `qmk_firmware/keyboards/polykybd/fonts/fonts.yaml`
 with `generate_fonts.py` (`--check` flags stale headers); `fontconvert` itself reads no
-config. Output goes to `keyboards/polykybd/base/fonts/generated/`, composed by
+config. Output goes to `keyboards/polykybd/fonts/generated/`, composed by
 `gfx_used_fonts.h` (`RESIDENT_FONTS[]`). Details: the qmk `fonts/README.md` and the
 Fonts section of `qmk_firmware/CLAUDE.md`.

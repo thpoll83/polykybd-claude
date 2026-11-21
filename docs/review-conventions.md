@@ -38,7 +38,7 @@ and relative links were adjusted to suit a standalone file.
      the two outcomes asymmetrically.** Identical is conclusive: we did not write
      it. A **difference is not proof we own it** — upstream may simply have
      changed the file since our last catch-up merge. Check
-     `keyboards/polykybd/UPSTREAM_PATCHES.md` (the maintained list of upstream
+     `keyboards/polykybd/docs/build/upstream-patches.md` (the maintained list of upstream
      files we patch) and `git log --oneline -- <path>` before concluding we wrote
      it; getting this backwards means "fixing" an inherited file and buying a
      conflict at the next merge. When the distinction actually decides a finding,

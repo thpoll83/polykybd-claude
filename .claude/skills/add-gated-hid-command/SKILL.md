@@ -61,7 +61,7 @@ store.
 export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"   # container: qmk is off PATH
 ```
 
-1. `keyboards/polykybd/hid_com.c` — add the `case NN:` (or read the new byte).
+1. `keyboards/polykybd/hid/hid_com.c` — add the `case NN:` (or read the new byte).
    Reply with `hid_reply(data, NN, ok)` + `raw_hid_send`; NACK an out-of-range value
    unless the range is deliberately open.
    ⚠️ **A command that resets the board replies with `raw_hid_send_before_reset()`.**
@@ -72,7 +72,7 @@ export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"   # container: q
    ⚠️ **Another session can take the same number at the same time.** Before you pick
    N+1, list the open PRs in `qmk_firmware`, `PolyKybdHost` and `polykybd-ctnd` that
    change `PROTOCOL_VERSION` or `__protocol__`. When one of them merges first, renumber
-   yours in all three repos (`config.h`, `PROTOCOL_HISTORY.md`, `_version.py`, the
+   yours in all three repos (`config.h`, `docs/protocol/protocol-history.md`, `_version.py`, the
    `FEATURE_MIN_PROTOCOL` entry and the rig test's gate), then merge the base in. The
    key guide was written as v33; runtime combos (qmk#428, another session) merged with
    v33 first, so the guide became v34 in three repos (qmk#435, host#813, ctnd#147).
@@ -165,7 +165,7 @@ make test:<name>
 
 ## 4. Land it
 
-- `keyboards/polykybd/PROTOCOL_HISTORY.md` (firmware) — append a `**vN** adds …`
+- `keyboards/polykybd/docs/protocol/protocol-history.md` (firmware) — append a `**vN** adds …`
   paragraph to the protocol list, saying what the command does, which direction the compatibility runs, and
   anything a reader would otherwise re-derive.
 - ⚠️ **Set the bump label at OPEN, and NOT `bump:protocol`** when you bumped

@@ -179,7 +179,7 @@ by an OLD one in the same script, and the sweep records "caught" — which reads
 confirmation that the new rule works when it has never fired at all. Hit on #308
 (2026-09-24): the first mutant was answered by an unrelated existing check, and
 the new caller test turned out to be matching a comment rather than the call
-(qmk `CLAUDE.md` → *Display rendering*, and `DISPLAY_PIPELINE.md`). **Choose a mutant only the rule under test
+(qmk `CLAUDE.md` → *Display rendering*, and `docs/display/display-pipeline.md`). **Choose a mutant only the rule under test
 can reach**, and confirm by reading the gate's own printed line — not the exit
 status — that it names your rule. When no such mutant exists, say so; that itself
 is a finding about the gate's granularity.

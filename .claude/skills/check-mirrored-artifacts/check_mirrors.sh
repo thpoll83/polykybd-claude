@@ -39,10 +39,10 @@ check "noto-fonts.yaml" \
       "$QMK/keyboards/polykybd/fonts/noto-fonts.yaml" \
       "$HOST/polyhost/res/fonts/noto-fonts.yaml"
 check "fontpack_render_settings.json" \
-      "$QMK/keyboards/polykybd/base/fonts/generated/fontpack_render_settings.json" \
+      "$QMK/keyboards/polykybd/fonts/generated/fontpack_render_settings.json" \
       "$HOST/polyhost/res/fontpack/fontpack_render_settings.json"
 check "lang_flags.json" \
-      "$QMK/keyboards/polykybd/base/fonts/generated/lang_flags.json" \
+      "$QMK/keyboards/polykybd/fonts/generated/lang_flags.json" \
       "$HOST/polyhost/res/fontpack/lang_flags.json"
 
 echo "--- QMK keycode table (qmk -> host layout editor) ---"

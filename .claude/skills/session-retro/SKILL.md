@@ -215,7 +215,7 @@ Recommendation: <which to keep, and why>
 - **`~/.claude/skills/`** — user-level, available in every session regardless of
   repo; use for genuinely cross-project meta-skills.
 - **Rules files** — the most *specific* target takes priority (a
-  `lang/FUTURE_LANGUAGES.md`-style doc over `docs/repos/<repo>.md` when the learning is
+  `docs/lang/future-languages.md`-style doc over `docs/repos/<repo>.md` when the learning is
   narrow).
 
 ## Pitfalls
