@@ -41,7 +41,7 @@ it (step 3). Also check where the path sits:
 |---|---|
 | `keyboards/polykybd/**`, `modules/polykybd/**`, `polyhost/**`, `station/**` | **ours** — go to step 4 |
 | `.github/workflows/**` | mostly upstream — in `qmk_firmware` only **5 of 23** are ours (see the 404 loop below) |
-| `lib/**`, `quantum/**`, `platforms/**`, `drivers/**` | upstream; check `keyboards/polykybd/UPSTREAM_PATCHES.md` for the ones we do patch |
+| `lib/**`, `quantum/**`, `platforms/**`, `drivers/**` | upstream; check `keyboards/polykybd/docs/build/upstream-patches.md` for the ones we do patch |
 | `keyboards/polykybd/doom/engine/**` | **vendored verbatim** — see the warning in step 5 |
 | any `cmake-build-*/`, `.build/`, `dist/`, `node_modules/` | a build artifact; the real question is why it is tracked (step 6) |
 

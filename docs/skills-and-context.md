@@ -62,7 +62,7 @@ unreachable.
   hardcoded `../` depths**, and a relocated script then fails in a way that reads as a
   broken skill rather than a wrong path. `add-glyph-script/preview_block.py` walked
   **six** levels up to reach `PolyKybdHost/tools` and three to reach
-  `base/fonts/generated/`; `status-oled-layout/measure_bands.py` walked three to reach
+  `fonts/generated/`; `status-oled-layout/measure_bands.py` walked three to reach
   `tools/`. Both now **derive** the qmk root by walking parents for `keyboards/polykybd`,
   which is depth-independent and is the pattern to copy. Four `SKILL.md`s also carried
   invocation strings relative to `keyboards/polykybd/` (`python3 .claude/skills/…` →

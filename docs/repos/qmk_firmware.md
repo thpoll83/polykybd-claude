@@ -7,6 +7,12 @@ this one. Paths in backticks are relative to the `qmk_firmware` checkout
 QMK fork. Our code is `keyboards/polykybd/` (split72, split42) and
 `modules/polykybd/`. Everything else is upstream QMK.
 
+Folders: the sources are grouped in `keymap/`, `display/`, `hid/`, `split_link/`,
+`fw_update/`, `system/`, `peripherals/`, `modes/`, `drivers/` (hardware) and `base/` (code
+the unit tests link). The root keeps only what QMK and keymaps need. Every doc is in
+`docs/`, listed in [`docs/README.md`](../../../qmk_firmware/keyboards/polykybd/docs/README.md),
+which also records where each file moved.
+
 This file holds
 only firmware rules. Each section names the doc with the full detail and history; read
 it before changing that subsystem. `.claude/rules/*.md` add warnings when you Read a
@@ -17,7 +23,7 @@ matching file.
 `qmk compile -kb polykybd/split72 -km default`. The ARM toolchain installs in the remote
 container, so don't claim it is unavailable. Setup, submodule failures, the
 `-Wcast-align` guard and the DOOM `-Werror` side effects:
-[`BUILD_ENVIRONMENT.md`](../../../qmk_firmware/keyboards/polykybd/BUILD_ENVIRONMENT.md).
+[`docs/build/build-environment.md`](../../../qmk_firmware/keyboards/polykybd/docs/build/build-environment.md).
 
 - ⚠️ **`qmk` is at `/root/.qmk_venv/bin/qmk`, not on `PATH`.**
   `export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"`.
@@ -47,13 +53,13 @@ container, so don't claim it is unavailable. Setup, submodule failures, the
   measurement**: step 1 and step 2 were read against two different `timer_read32()`
   zeros (`timer_init()` runs between them). A `65535` there is that bug, not 65 s.
 
-The stamp UF2 history and the brick's confounders: `BUILD_ENVIRONMENT.md` → *Hand-built
+The stamp UF2 history and the brick's confounders: `docs/build/build-environment.md` → *Hand-built
 UF2s* and `keyboards/polykybd/readme.md` → *The stamp UF2*.
 
 ## CI (PR checks)
 
 HIL tiers, paths filters, the inherited upstream lint, reading a job log:
-[`CI_CHECKS.md`](../../../qmk_firmware/keyboards/polykybd/CI_CHECKS.md). `diagnose-hil-failure` classifies a
+[`docs/build/ci-checks.md`](../../../qmk_firmware/keyboards/polykybd/docs/build/ci-checks.md). `diagnose-hil-failure` classifies a
 red rig check; `debug-firmware-on-rig` runs a one-off probe.
 
 - ⚠️ **The default HIL tier skips the deepest checks**: the startup animation, idle +
@@ -84,7 +90,7 @@ red rig check; `debug-firmware-on-rig` runs a one-off probe.
 This is a fork of a 30k-commit project, so most of what a scanner flags under `.github/`
 or `lib/` is upstream's. Two checks decide it: `diff` the path against upstream's raw
 file (identical is conclusive; a difference is not proof we own it, so check
-[`UPSTREAM_PATCHES.md`](../../../qmk_firmware/keyboards/polykybd/UPSTREAM_PATCHES.md)), and read the triggers
+[`docs/build/upstream-patches.md`](../../../qmk_firmware/keyboards/polykybd/docs/build/upstream-patches.md)), and read the triggers
 (`workflow_call`-only and `github.repository == 'qmk/qmk_firmware'` gates never run here).
 For a workflow, a 404 from upstream means ours: 6 of the 25 are (`bump-version.yml`,
 `cppcheck.yml`, `polykybd-unit-test.yml`, `publish-release.yml`, `qmk-test.yml`,
@@ -104,7 +110,7 @@ Full procedure: `../polykybd-claude/docs/review-conventions.md` and the
 
 Firmware tag `PolyKybd-fw-vX.Y.Z`, version `FW_VERSION` in `config.h`. Shared release
 rules are in polykybd-claude. Mechanics, the `release-notes` branch and the gates:
-[`RELEASES.md`](../../../qmk_firmware/keyboards/polykybd/RELEASES.md).
+[`docs/build/releases.md`](../../../qmk_firmware/keyboards/polykybd/docs/build/releases.md).
 
 - ⚠️ **Publishing is gated on a green firmware-APPLY run for the released commit**
   (`tools/require_fwapply_run.py`). The HID-apply brick shipped because no release
@@ -127,7 +133,7 @@ another clock is added. The boot banner prints `clk: sys=…Hz vreg_vsel=0x…`.
 
 **8 MB external QSPI flash** (BY25Q64ES on rev 3.3 boards, W25Q64JV on earlier
 revisions; both erase 4 KB sectors and 64 KB blocks and support erase suspend/resume,
-figures in `FW_STAGING.md`), partitioned (authoritative map: `base/fw_staging.h`):
+figures in `docs/fw-update/fw-staging.md`), partitioned (authoritative map: `drivers/fw_staging.h`):
 0–2 MB running firmware, 2–4 MB update staging, 4–8 MB resources/overlays. The budget
 that matters is the 2 MB firmware partition. `FW_STAGING_OFFSET` equals the linker
 `flash1` length, so an oversized image fails to link. ⚠️ Sectors taken from the top of
@@ -146,7 +152,7 @@ Split keyboard (halves over a full-duplex UART at 1843200 baud), up to 72 per-ke
 
 `split72` (72 keys, RGB matrix, Cirque trackpad) and `split42` (CRKBD footprint) share
 one `poly_keymap.c`; each variant's `keymap.c` is data only. Don't reintroduce
-per-variant logic. [`VARIANTS.md`](../../../qmk_firmware/keyboards/polykybd/VARIANTS.md).
+per-variant logic. [`docs/build/variants.md`](../../../qmk_firmware/keyboards/polykybd/docs/build/variants.md).
 
 - ⚠️ **The two variants share the MCU schematic.** `variations/poly_corne/` (in the
   PolyKybd hardware repo) has no processor, so an MCU grep there finds nothing. An
@@ -161,19 +167,19 @@ per-variant logic. [`VARIANTS.md`](../../../qmk_firmware/keyboards/polykybd/VARI
 `DYNAMIC_KEYMAP_LAYER_COUNT` is 13, but only layers 0..8 are stored in EEPROM
 (`DYNAMIC_KEYMAP_UPDATE_MAX_LAYER_COUNT` = 9, the last being the MIDI layer `_ML`);
 `_SL` and up come from flash.
-[`KEYMAP_STORAGE.md`](../../../qmk_firmware/keyboards/polykybd/KEYMAP_STORAGE.md).
+[`docs/features/keymap-storage.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/keymap-storage.md).
 
 - ⚠️ **The stored keymap is indexed by layer number, unversioned.** Add a new
   `KEYMAP_STORAGE_*` value (`state.h`) and point `KEYMAP_STORAGE_CURRENT` at it when a
   layer is added, removed or reordered, never when its contents change. A new stored
   layer goes at the END of the stored block (before `_SL`), or the host's layout editor
-  names older boards' layer keys wrong (KEYMAP_STORAGE.md).
+  names older boards' layer keys wrong (docs/features/keymap-storage.md).
 - ⚠️ **A keymap edit below the write cap is invisible on any board that stored a
   keymap.** Increasing the format stamp reaches every board and wipes the user's macros;
   `polyctl keymap set <layer> <row> <col> <keycode>` is non-destructive. To ship a
   default-key change to existing boards, add a `KEYMAP_MIG_*` value (`state.h`) and a
   `dynamic_keymap_migrate_poly(old, new)` call: it changes only keys that still hold
-  the old default (KEYMAP_STORAGE.md → *One-time migrations*).
+  the old default (docs/features/keymap-storage.md → *One-time migrations*).
 - ⚠️ **The host's keymap reset also wipes every macro.** Tray Maintenance → "Reset keymap
   to default…" (control method `keymap.reset`, no `polyctl`) sends
   `id_dynamic_keymap_reset`, and `dynamic_keymap_reset_poly()` resets layers 0..8 (keys
@@ -188,7 +194,7 @@ per-variant logic. [`VARIANTS.md`](../../../qmk_firmware/keyboards/polykybd/VARI
 
 Handle a custom keycode in `process_record_user()` and return false, never on the
 release edge: on an `OSL()` layer a release action fires up to three times. Real
-keycodes stay on the release edge. [`KEYCODE_HANDLING.md`](../../../qmk_firmware/keyboards/polykybd/KEYCODE_HANDLING.md).
+keycodes stay on the release edge. [`docs/features/keycode-handling.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/keycode-handling.md).
 
 - ⚠️ **The tapping term and the Flow Tap term are runtime settings since v29, Auto
   Shift since v30** (cmd 44, `base/tap_terms.h`). `TAPPING_TERM` / `FLOW_TAP_TERM` in
@@ -208,7 +214,7 @@ keycodes stay on the release edge. [`KEYCODE_HANDLING.md`](../../../qmk_firmware
 
 Byte 0 report ID, byte 1 command ID, byte 2+ payload; replies `"P\xNN."` (ACK) or
 `"P\xNN!"` (NACK). `PROTOCOL_VERSION` (35, `config.h`) gates host features. Read
-[`PROTOCOL_HISTORY.md`](../../../qmk_firmware/keyboards/polykybd/PROTOCOL_HISTORY.md) before changing any
+[`docs/protocol/protocol-history.md`](../../../qmk_firmware/keyboards/polykybd/docs/protocol/protocol-history.md) before changing any
 command; several were shaped by a contrast the wire format does not show. A new command
 goes through the `add-gated-hid-command` skill.
 
@@ -231,7 +237,7 @@ goes through the `add-gated-hid-command` skill.
   version. An RLE fragment length must stay below 0x80.
 - ⚠️ **The flat overlay index is the only address an upload has**, so
   `reset_overlay_mapping()`'s identity default is required for writes.
-- **The bulk pipe** ([`BULK_PIPE.md`](../../../qmk_firmware/keyboards/polykybd/BULK_PIPE.md)) is a CDC serial
+- **The bulk pipe** ([`docs/protocol/bulk-pipe.md`](../../../qmk_firmware/keyboards/polykybd/docs/protocol/bulk-pipe.md)) is a CDC serial
   interface (`POLYKYBD_BULK_PIPE`, on by default) whose bulk endpoints carry large
   host→master transfers; raw HID stays the control channel. It carries the
   measurement commands and, since pipe protocol 2, the firmware-update chunks
@@ -249,18 +255,18 @@ goes through the `add-gated-hid-command` skill.
 
 Cmd 27 packs each `xx-YY` code as two indices into the frozen, append-only table in
 `lang/iso_lang_country.py`, which is mirrored in host and rig (see polykybd-claude).
-Re-run `cog -r hid_com.c` after changing the list or the table. `NUM_LANG` is 161.
+Re-run `cog -r hid/hid_com.c` (from `keyboards/polykybd/`) after changing the list or the table. `NUM_LANG` is 161.
 Adding a language: the `add-polykybd-language` skill and
-[`lang/FUTURE_LANGUAGES.md`](../../../qmk_firmware/keyboards/polykybd/lang/FUTURE_LANGUAGES.md).
+[`docs/lang/future-languages.md`](../../../qmk_firmware/keyboards/polykybd/docs/lang/future-languages.md).
 
 ### Display rendering
 
 Compressed bitmap → `fill_overlay.c` → `overlays[idx][360]`; a key event inverts the
-keycap. Legend drawing: [`LEGEND_RENDERING.md`](../../../qmk_firmware/keyboards/polykybd/LEGEND_RENDERING.md);
-placement: [`LEGEND_LAYOUT.md`](../../../qmk_firmware/keyboards/polykybd/LEGEND_LAYOUT.md); status OLED:
-[`STATUS_OLED.md`](../../../qmk_firmware/keyboards/polykybd/STATUS_OLED.md); hint icons:
-[`HINT_ICONS.md`](../../../qmk_firmware/keyboards/polykybd/HINT_ICONS.md); the grid and the three render seams:
-[`DISPLAY_PIPELINE.md`](../../../qmk_firmware/keyboards/polykybd/DISPLAY_PIPELINE.md).
+keycap. Legend drawing: [`docs/display/legend-rendering.md`](../../../qmk_firmware/keyboards/polykybd/docs/display/legend-rendering.md);
+placement: [`docs/display/legend-layout.md`](../../../qmk_firmware/keyboards/polykybd/docs/display/legend-layout.md); status OLED:
+[`docs/display/status-oled.md`](../../../qmk_firmware/keyboards/polykybd/docs/display/status-oled.md); hint icons:
+[`docs/display/hint-icons.md`](../../../qmk_firmware/keyboards/polykybd/docs/display/hint-icons.md); the grid and the three render seams:
+[`docs/display/display-pipeline.md`](../../../qmk_firmware/keyboards/polykybd/docs/display/display-pipeline.md).
 
 - ⚠️ **A new display-list op needs three walkers**: the draw dispatch, the measurement,
   and the host's `oled_preview.py`. A missing one fails silently.
@@ -282,7 +288,7 @@ placement: [`LEGEND_LAYOUT.md`](../../../qmk_firmware/keyboards/polykybd/LEGEND_
 ### Split synchronisation
 
 Twelve custom transaction IDs send state to the slave with CRC32 and up to 10 retries.
-[`SPLIT_SYNC.md`](../../../qmk_firmware/keyboards/polykybd/SPLIT_SYNC.md).
+[`docs/protocol/split-sync.md`](../../../qmk_firmware/keyboards/polykybd/docs/protocol/split-sync.md).
 
 - ⚠️ **State that a host HID report sets reaches the slave as that report, never as
   new `poly_sync_t` fields** (maintainer's rule, 2026-11-15). Copy the report into
@@ -293,7 +299,7 @@ Twelve custom transaction IDs send state to the slave with CRC32 and up to 10 re
   there costs every sync; a report is at most 64 bytes, so it needs no second cap. Keep
   `poly_sync_t` for state the master derives itself. A relayed report has no automatic
   resend: keep the last one and resend it from housekeeping until `sync_succeeded()`.
-  Detail: [`SPLIT_SYNC.md`](../../../qmk_firmware/keyboards/polykybd/SPLIT_SYNC.md) →
+  Detail: [`docs/protocol/split-sync.md`](../../../qmk_firmware/keyboards/polykybd/docs/protocol/split-sync.md) →
   *Host state goes to the slave as the report*.
 - ⚠️ **`RPC_M2S_BUFFER_SIZE` is a silent ceiling.** An oversized payload is dropped
   before sending, and bulk call sites discard the ack. Add a `static_assert` for any
@@ -326,7 +332,7 @@ Twelve custom transaction IDs send state to the slave with CRC32 and up to 10 re
   running Eden or an RLE decode from XIP during it stops permanently, or the bus wedges and
   the watchdog resets the half (2026-10-12, both at USB suspend). The driver's
   `wear_leveling_rp2040_flash_quiesce()` hook now waits for core1 before every write
-  ([`UPSTREAM_PATCHES.md`](../../../qmk_firmware/keyboards/polykybd/UPSTREAM_PATCHES.md)). A raw
+  ([`docs/build/upstream-patches.md`](../../../qmk_firmware/keyboards/polykybd/docs/build/upstream-patches.md)). A raw
   `flash_range_*` call outside the EEPROM driver still needs `core1_hold()`.
 - ⚠️ **An unwritten EEPROM byte reads `0x00`, not `0xFF`**, after wear levelling. Gate a
   new field on the format version, and retire a broken version value rather than reuse
@@ -347,8 +353,8 @@ Twelve custom transaction IDs send state to the slave with CRC32 and up to 10 re
 ### Firmware staging and the signing prompt
 
 `-DFW_REQUIRE_SIGNATURE`: an unsigned image turns the board into an ACCEPT/REJECT
-dialog. [`FW_STAGING.md`](../../../qmk_firmware/keyboards/polykybd/FW_STAGING.md),
-`keyboards/polykybd/tools/SIGNING.md`.
+dialog. [`docs/fw-update/fw-staging.md`](../../../qmk_firmware/keyboards/polykybd/docs/fw-update/fw-staging.md),
+`keyboards/polykybd/docs/fw-update/signing.md`.
 
 - ⚠️ **The self-apply page buffer must be `uint32_t`.** A `uint8_t` buffer word-copied
   through a cast HardFaults the M0+, and it bricked boards. When a bisect blames a commit
@@ -373,37 +379,37 @@ dialog. [`FW_STAGING.md`](../../../qmk_firmware/keyboards/polykybd/FW_STAGING.md
 
 Each has a doc; the rules below bind code outside it.
 
-- **Intl layer** ([`INTL_LAYER.md`](../../../qmk_firmware/keyboards/polykybd/INTL_LAYER.md)): gate a release
+- **Intl layer** ([`docs/features/intl-layer.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/intl-layer.md)): gate a release
   swallow on ownership, not the keycode, and let modifiers and layer keys fall through.
   Nothing may overlay this layer.
-- **Glyph script, cmd 30** ([`GLYPH_SCRIPT.md`](../../../qmk_firmware/keyboards/polykybd/GLYPH_SCRIPT.md),
+- **Glyph script, cmd 30** ([`docs/display/glyph-script.md`](../../../qmk_firmware/keyboards/polykybd/docs/display/glyph-script.md),
   skill `add-glyph-script`): the index is open-ended, so a new face needs no protocol
   version increase. Don't add a range NACK. Codepoints are relocated into private
   blocks 0x40 apart. Since v26 a second byte sets the placement (0 keep, 1 centre,
   2 top-left); unlike the index it is a closed range, NACKed past 2.
-- **Layer names, cmd 35** ([`LAYER_NAMES.md`](../../../qmk_firmware/keyboards/polykybd/LAYER_NAMES.md)): the
+- **Layer names, cmd 35** ([`docs/protocol/layer-names.md`](../../../qmk_firmware/keyboards/polykybd/docs/protocol/layer-names.md)): the
   count is `DYNAMIC_KEYMAP_UPDATE_MAX_LAYER_COUNT`, not `DYNAMIC_KEYMAP_LAYER_COUNT`.
-- **RGB settings row** ([`RGB_SETTINGS_ROW.md`](../../../qmk_firmware/keyboards/polykybd/RGB_SETTINGS_ROW.md)):
+- **RGB settings row** ([`docs/features/rgb-settings-row.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/rgb-settings-row.md)):
   ⚠️ a legend is not evidence a keycode does anything; grep for the `case` that handles
   it. Enable an effect on both variants. New RGB defaults reach only a fresh eeconfig.
-- **Cirque trackpad** ([`TRACKPAD.md`](../../../qmk_firmware/keyboards/polykybd/TRACKPAD.md)): the gesture
+- **Cirque trackpad** ([`docs/features/trackpad.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/trackpad.md)): the gesture
   layer is the default (`-e POLYKYBD_CIRQUE_RELATIVE=yes` opts out). A flavour only a
   hand-typed `-e` reaches is tested by nothing. `POINTING_DEVICE_ROTATION_90` is
   relative-only.
-- **Community modules** ([`COMMUNITY_MODULES.md`](../../../qmk_firmware/keyboards/polykybd/COMMUNITY_MODULES.md),
+- **Community modules** ([`docs/build/community-modules.md`](../../../qmk_firmware/keyboards/polykybd/docs/build/community-modules.md),
   skill `extract-qmk-module`): declared in each variant's `keyboard.json` (there is no
   `keyboards/polykybd/keyboard.json`), and listing a module is the enable. Module hooks
   run before `_kb`/`_user`. Overriding a non-suffixed hook means calling `_kb` yourself.
   The LTR-559 sensor is side-agnostic.
-- **First-run tutorial** ([`anim/TUTORIAL.md`](../../../qmk_firmware/keyboards/polykybd/anim/TUTORIAL.md)): it
+- **First-run tutorial** ([`docs/features/tutorial.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/tutorial.md)): it
   annotates the normal renderer, never redraws the board. On the slave, what the master
   drew is known only as what the link carried. GET_LANG reads `poly_reported_lang()`, so
   the preview never reaches the host.
-- **USB MIDI and the MIDI layer** ([`MIDI.md`](../../../qmk_firmware/keyboards/polykybd/MIDI.md)): send-only
+- **USB MIDI and the MIDI layer** ([`docs/features/midi.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/midi.md)): send-only
   (`MIDI_SEND_ONLY`, a patch to QMK core), off in the DOOM monolith. The slave learns
   the octave and velocity only from `poly_sync_t.midi_cfg`. The symbols are generated:
   edit `tools/midi_glyphs.py`, never the `gfx_icons.h` block.
-- **Demo mode** ([`anim/DEMO_MODE.md`](../../../qmk_firmware/keyboards/polykybd/anim/DEMO_MODE.md)): ⚠️ demo
+- **Demo mode** ([`docs/features/demo-mode.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/demo-mode.md)): ⚠️ demo
   mode must not change any behaviour outside demo mode (maintainer's rule). The key demo
   sends no modifier and no Tab. Its typing text IS the idle screen's poems.
 
@@ -412,7 +418,7 @@ Each has a doc; the rules below bind code outside it.
 Generated by `fontconvert` (`../Adafruit-GFX-Library/`) from
 `keyboards/polykybd/fonts/fonts.yaml`, whose list order is the font priority.
 [`fonts/README.md`](../../../qmk_firmware/keyboards/polykybd/fonts/README.md),
-[`FONT_PACK.md`](../../../qmk_firmware/keyboards/polykybd/FONT_PACK.md).
+[`docs/display/font-pack.md`](../../../qmk_firmware/keyboards/polykybd/docs/display/font-pack.md).
 
 - **Byte-reproducible output needs the pinned `fontconvert`** (FreeType 2.13.3 /
   HarfBuzz 2.6.7).
@@ -432,9 +438,9 @@ Generated by `fontconvert` (`../Adafruit-GFX-Library/`) from
 ## Crashes, hangs and investigations
 
 How faults are recorded and reported, the watchdog, and the boot window:
-[`CRASH_DIAGNOSTICS.md`](../../../qmk_firmware/keyboards/polykybd/CRASH_DIAGNOSTICS.md); the `hunt-boot-hang`
+[`docs/debugging/crash-diagnostics.md`](../../../qmk_firmware/keyboards/polykybd/docs/debugging/crash-diagnostics.md); the `hunt-boot-hang`
 skill. Closed investigations and the evidence behind the rules here:
-[`INVESTIGATION_HISTORY.md`](../../../qmk_firmware/keyboards/polykybd/INVESTIGATION_HISTORY.md).
+[`docs/debugging/investigation-history.md`](../../../qmk_firmware/keyboards/polykybd/docs/debugging/investigation-history.md).
 
 - ⚠️ **Boot is the one unwatched window and prints nothing**: the console runs from the
   main loop. The status panel is the only live channel a wedged board has.

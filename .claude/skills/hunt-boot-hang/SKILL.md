@@ -9,7 +9,7 @@ A boot hang that "happens sometimes" cannot be fixed by reasoning about code: th
 `0x16C1` hunt (2026-10-02, fixed by qmk#338) ruled out five plausible causes, and
 each of them looked convincing on paper. What worked was **a reproducer with a known
 rate, one change per build, and run lengths sized from that rate.** This skill is
-that loop. Background and the probe code: `qmk_firmware/keyboards/polykybd/CRASH_DIAGNOSTICS.md`
+that loop. Background and the probe code: `qmk_firmware/keyboards/polykybd/docs/debugging/crash-diagnostics.md`
 ("Boot hang: an IRQ nested into USB", "Instruments for a hang with no frame").
 
 ## 0. Read the record first
@@ -76,7 +76,7 @@ breadcrumb Y → X is cleared"). Ask the user the round count and the record eac
 ## 4. When the record has no frame: probes
 
 If two or three A/B rounds have not isolated it, stop guessing and instrument
-(CRASH_DIAGNOSTICS.md → "Instruments for a hang with no frame"):
+(docs/debugging/crash-diagnostics.md → "Instruments for a hang with no frame"):
 
 1. **IRQ census** (ChibiOS IRQ hooks → counters in `.ram0`, written into the record's
    frame words). Tells you which interrupts ran during the stall, whether the timer
@@ -92,7 +92,7 @@ own A/B build.
 ## 5. Ship the fix
 
 Once one change holds for `3/p`+ rounds and the probe data explains why: open the PR
-from a fresh branch with the A/B table in the body and in CRASH_DIAGNOSTICS.md, give
+from a fresh branch with the A/B table in the body and in docs/debugging/crash-diagnostics.md, give
 the user a `.bin` of the exact PR head (merged with anything it needs, e.g. cmd 43) for
 the long soak, and put the soak count in the docs once it is in.
 
@@ -103,7 +103,7 @@ the long soak, and put the soak count in the docs once it is in.
   reboots, and every one of those boards booted (2026-10-21). Firmware 1.9.9 (qmk#400)
   waits up to 200 ms for the reply to leave; 4 in 100 can still be lost. Check that
   the board came back before you count the round as a hang.
-  `qmk_firmware/keyboards/polykybd/PROTOCOL_HISTORY.md` → cmd 43 has the numbers.
+  `qmk_firmware/keyboards/polykybd/docs/protocol/protocol-history.md` → cmd 43 has the numbers.
 - **Clock, SMP, core1 and the slave all looked guilty and were not.** Test the
   suspect; do not argue it. Also ask the user what they already know ("we had this
   before 200 MHz" removed a whole build).
