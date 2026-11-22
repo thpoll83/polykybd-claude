@@ -61,9 +61,12 @@ store.
 export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"   # container: qmk is off PATH
 ```
 
-1. `keyboards/polykybd/lib/hid/hid_com.c` — add the `case NN:` (or read the new byte).
-   Reply with `hid_reply(data, NN, ok)` + `raw_hid_send`; NACK an out-of-range value
-   unless the range is deliberately open.
+1. `keyboards/polykybd/lib/hid/hid_com.c` — add a handler `hid_cmd_NN()` and register it
+   in the `s_hid_cmds` table (`[NN] = {hid_cmd_NN, 0}`; `HID_CMD_OVERLAY_BURST` instead
+   of `0` for bulk overlay traffic). A command without a table entry goes to
+   `hid_cmd_unknown()`. For a new byte on an existing command, read it in that
+   command's handler. Reply with `hid_reply(data, NN, ok)` + `raw_hid_send`; NACK an
+   out-of-range value unless the range is deliberately open.
    ⚠️ **A command that resets the board replies with `raw_hid_send_before_reset()`.**
    A plain `raw_hid_send()` only queues the reply, and a reset in the next ~100 ms
    loses it or delivers it cut off (40 of 100 rig reboots before qmk#400). Cmds 23,
