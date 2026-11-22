@@ -66,8 +66,8 @@ export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"   # container: q
    of `0` for bulk overlay traffic). A command without a table entry goes to
    `hid_cmd_unknown()`, which first offers it to the firmware-update and font-pack
    transports. So an id with no table entry is not always free: do not take an id of
-   a `CMD_FW_UP_*` define (`lib/fw_update/hid_fw_up.h`) or a `CMD_FONTPACK_*` define
-   (`lib/hid/hid_fontpack.h`). A table entry at such an id takes those reports away
+   a `CMD_FW_UP_*` define (`keyboards/polykybd/lib/fw_update/hid_fw_up.h`) or a `CMD_FONTPACK_*` define
+   (`keyboards/polykybd/lib/hid/hid_fontpack.h`). A table entry at such an id takes those reports away
    from the transport. For a new byte on an existing command, read it in that
    command's handler. Reply with `hid_reply(data, NN, ok)` + `raw_hid_send`; NACK an
    out-of-range value unless the range is deliberately open.
