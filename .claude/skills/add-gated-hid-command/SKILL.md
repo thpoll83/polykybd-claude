@@ -19,7 +19,7 @@ an older keyboard, instead of greying out its menu entry.
 
 | You want | Shape | Protocol bump? |
 |---|---|---|
-| A new command the firmware has never had | new `case NN` | **yes**, and a `supports()` gate |
+| A new command the firmware has never had | new `hid_cmd_NN()` in `s_hid_cmds` | **yes**, and a `supports()` gate |
 | A new flag/byte on an existing command | extra payload byte | **yes** — an old firmware IGNORES it, which is the dangerous direction |
 | A new *value* in an already open-ended set (e.g. another glyph script) | none | **no** — see `GlyphScript`, deliberately open |
 | A per-item flag on data an existing command already carries | a value range the field never uses | **yes** — older firmware must reject the range, not misread it |
@@ -117,7 +117,7 @@ collision presents as a bogus `undefined reference`.
    test breaks on the new keyword.
 4b. `polyhost/device/mock_firmware.py` — the emulated keyboard's side:
    - **`CMD_MIN_PROTOCOL[<cmd>] = N`**, the protocol that first knows it. The emulator
-     NACKs it on any older keyboard, exactly as `hid_com.c`'s default case does.
+     NACKs it on any older keyboard, as `hid_com.c` does for an id with no `s_hid_cmds` entry (`hid_cmd_unknown()`).
      A flag on an existing command is gated in that command's handler instead.
    - a `_HANDLERS` entry when the reply carries DATA. Without one the command gets a
      bare ACK, which is enough for a setter and empty for a getter.
