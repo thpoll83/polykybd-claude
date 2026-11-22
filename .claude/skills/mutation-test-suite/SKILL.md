@@ -172,7 +172,7 @@ For each mutation, three outcomes:
 
 ⚠️ **A single-binary GATE names no failing test, so "caught" is unattributable —
 and that is a fourth way this fails open.** The three outcomes above assume a
-harness that tells you *which* test went red. A `tools/check_*.py`, `qmk lint` or
+harness that tells you *which* test went red. A `dev/tools/check_*.py`, `qmk lint` or
 any other gate that prints one verdict and exits 1 cannot: every rule inside it
 produces the identical signal. So a mutation aimed at your NEW rule can be caught
 by an OLD one in the same script, and the sweep records "caught" — which reads as

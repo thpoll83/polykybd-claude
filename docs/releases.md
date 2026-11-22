@@ -43,7 +43,7 @@ skill; the mechanics, the `release-notes` branch and `scripts/publish_release.py
   bullet has both refusal cases.
 
 - ⚠️ **Publishing is GATED on a green firmware-APPLY run for the commit being released**
-  (`tools/require_fwapply_run.py`). The HID-apply brick shipped because no release
+  (`dev/tools/require_fwapply_run.py`). The HID-apply brick shipped because no release
   artifact had ever been applied on hardware — the rig flashes by UF2 over GPIO BOOTSEL,
   which bypasses `fw_staging` entirely. It walks back through ancestors and proves the
   delta to the release commit is **only** the auto-bump. Recovery when it refuses:
