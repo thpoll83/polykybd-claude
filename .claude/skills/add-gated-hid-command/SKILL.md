@@ -64,7 +64,11 @@ export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"   # container: q
 1. `keyboards/polykybd/lib/hid/hid_com.c` — add a handler `hid_cmd_NN()` and register it
    in the `s_hid_cmds` table (`[NN] = {hid_cmd_NN, 0}`; `HID_CMD_OVERLAY_BURST` instead
    of `0` for bulk overlay traffic). A command without a table entry goes to
-   `hid_cmd_unknown()`. For a new byte on an existing command, read it in that
+   `hid_cmd_unknown()`, which first offers it to the firmware-update and font-pack
+   transports. So an id with no table entry is not always free: do not take an id of
+   a `CMD_FW_UP_*` define (`lib/fw_update/hid_fw_up.h`) or a `CMD_FONTPACK_*` define
+   (`lib/hid/hid_fontpack.h`). A table entry at such an id takes those reports away
+   from the transport. For a new byte on an existing command, read it in that
    command's handler. Reply with `hid_reply(data, NN, ok)` + `raw_hid_send`; NACK an
    out-of-range value unless the range is deliberately open.
    ⚠️ **A command that resets the board replies with `raw_hid_send_before_reset()`.**
@@ -117,7 +121,8 @@ collision presents as a bogus `undefined reference`.
    test breaks on the new keyword.
 4b. `polyhost/device/mock_firmware.py` — the emulated keyboard's side:
    - **`CMD_MIN_PROTOCOL[<cmd>] = N`**, the protocol that first knows it. The emulator
-     NACKs it on any older keyboard, as `hid_com.c` does for an id with no `s_hid_cmds` entry (`hid_cmd_unknown()`).
+     NACKs it on any older keyboard, as `hid_com.c` does for an id with no `s_hid_cmds` entry
+     that neither transport takes (`hid_cmd_unknown()`).
      A flag on an existing command is gated in that command's handler instead.
    - a `_HANDLERS` entry when the reply carries DATA. Without one the command gets a
      bare ACK, which is enough for a setter and empty for a getter.
