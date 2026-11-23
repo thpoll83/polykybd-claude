@@ -432,7 +432,7 @@ and relative links were adjusted to suit a standalone file.
 - **Sourcery's `dangerous-subprocess-use-audit` is a BLOCKING check here too, and it
   wants a marker plus a written audit, not contorted code.** It fires on any
   `subprocess.run(cmd, …)` whose argv is a variable, even a literal list chosen three
-  lines above. The firmware repo's Python (`tools/`, `tools/hil_probes/`) hits it the
+  lines above. The firmware repo's Python (`dev/tools/`, `dev/tools/hil_probes/`) hits it the
   same way the host does. Put `# nosemgrep:
   python.lang.security.audit.dangerous-subprocess-use-audit` on the line
   **immediately before** the call, with the audit (where `cmd` comes from, no shell)

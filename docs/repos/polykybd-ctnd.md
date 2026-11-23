@@ -84,7 +84,7 @@ skill. Unreliable ideas go to [`docs/FUTURE_TESTS.md`](../../../polykybd-ctnd/do
 ## Probes and performance
 
 - **A probe** is a one-off question for the hardware: a Python file in
-  `qmk_firmware/keyboards/polykybd/tools/hil_probes/`, run with `tier: debug`.
+  `qmk_firmware/keyboards/polykybd/dev/tools/hil_probes/`, run with `tier: debug`.
   [`docs/PROBES.md`](../../../polykybd-ctnd/docs/PROBES.md), skill `debug-firmware-on-rig`. A probe replaces the
   suite unless `--probe-with-suite` is passed. A brick self-recovers here, since BOOTSEL
   bypasses `fw_staging`.

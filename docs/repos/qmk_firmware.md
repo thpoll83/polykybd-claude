@@ -7,11 +7,16 @@ this one. Paths in backticks are relative to the `qmk_firmware` checkout
 QMK fork. Our code is `keyboards/polykybd/` (split72, split42) and
 `modules/polykybd/`. Everything else is upstream QMK.
 
-Folders: the sources are grouped in `keymap/`, `display/`, `hid/`, `split_link/`,
-`fw_update/`, `system/`, `peripherals/`, `modes/`, `drivers/` (hardware) and `base/` (code
-the unit tests link). The root keeps only what QMK and keymaps need. Every doc is in
-`docs/`, listed in [`docs/README.md`](../../../qmk_firmware/keyboards/polykybd/docs/README.md),
-which also records where each file moved.
+Folders: the sources are grouped in `keys_com/` (key handling and legends, compiled for
+every variant), `lib/` (`system/`, `split_link/`, `hid/`, `fw_update/`, `display/`,
+`drivers/`, `peripherals/`, `chibios_overrides/`), `features/` (`anim/`, `modes/`,
+`emoji/`, `hints/`), `dev/` (`tools/`, `scripts/`, `diag/`, `profiling/`) and `base/` (code
+the unit tests link). `ld/` stays at the root because QMK looks for linker scripts only
+there. Includes use the path from the keyboard root (`"lib/system/state.h"`). The
+keyboard [`readme.md`](../../../qmk_firmware/keyboards/polykybd/readme.md#folder-layout)
+describes each folder. Every doc is in `docs/`, listed in
+[`docs/README.md`](../../../qmk_firmware/keyboards/polykybd/docs/README.md), which also
+records where each file moved.
 
 This file holds
 only firmware rules. Each section names the doc with the full detail and history; read
@@ -37,7 +42,7 @@ container, so don't claim it is unavailable. Setup, submodule failures, the
 - ⚠️ **The DOOM monolith (`POLYKYBD_DOOM=yes`) is the tightest RAM flavour, and local
   gcc 13.2 shows 400–500 B more headroom than CI's gcc 15.2.** The PR job
   "Build release shape" runs the release's `build_pack.sh` and prints the headroom
-  (`tools/ram_report.py`). Trust its number, not a local build (v1.9.1 failed 40 B over).
+  (`dev/tools/ram_report.py`). Trust its number, not a local build (v1.9.1 failed 40 B over).
 - **Docker is not usable** in the remote container (no daemon).
 - ⚠️ **"It booted" is not evidence a flash was written. Make the artifact identify
   itself.** The handedness banner prints `slot=N/M writer=0xNN` for this reason. When a
@@ -113,7 +118,7 @@ rules are in polykybd-claude. Mechanics, the `release-notes` branch and the gate
 [`docs/build/releases.md`](../../../qmk_firmware/keyboards/polykybd/docs/build/releases.md).
 
 - ⚠️ **Publishing is gated on a green firmware-APPLY run for the released commit**
-  (`tools/require_fwapply_run.py`). The HID-apply brick shipped because no release
+  (`dev/tools/require_fwapply_run.py`). The HID-apply brick shipped because no release
   artifact had ever been applied on hardware. The gate accepts a delta to the release
   commit of only the auto-bump and files the build never reads (copied from
   `qmk-test.yml`'s `paths:` filter).
@@ -133,7 +138,7 @@ another clock is added. The boot banner prints `clk: sys=…Hz vreg_vsel=0x…`.
 
 **8 MB external QSPI flash** (BY25Q64ES on rev 3.3 boards, W25Q64JV on earlier
 revisions; both erase 4 KB sectors and 64 KB blocks and support erase suspend/resume,
-figures in `docs/fw-update/fw-staging.md`), partitioned (authoritative map: `drivers/fw_staging.h`):
+figures in `docs/fw-update/fw-staging.md`), partitioned (authoritative map: `lib/drivers/fw_staging.h`):
 0–2 MB running firmware, 2–4 MB update staging, 4–8 MB resources/overlays. The budget
 that matters is the 2 MB firmware partition. `FW_STAGING_OFFSET` equals the linker
 `flash1` length, so an oversized image fails to link. ⚠️ Sectors taken from the top of
@@ -213,7 +218,7 @@ keycodes stay on the release edge. [`docs/features/keycode-handling.md`](../../.
 ### HID protocol
 
 Byte 0 report ID, byte 1 command ID, byte 2+ payload; replies `"P\xNN."` (ACK) or
-`"P\xNN!"` (NACK). `PROTOCOL_VERSION` (35, `config.h`) gates host features. Read
+`"P\xNN!"` (NACK). `PROTOCOL_VERSION` (`config.h`) gates host features. Read
 [`docs/protocol/protocol-history.md`](../../../qmk_firmware/keyboards/polykybd/docs/protocol/protocol-history.md) before changing any
 command; several were shaped by a contrast the wire format does not show. A new command
 goes through the `add-gated-hid-command` skill.
@@ -255,7 +260,7 @@ goes through the `add-gated-hid-command` skill.
 
 Cmd 27 packs each `xx-YY` code as two indices into the frozen, append-only table in
 `lang/iso_lang_country.py`, which is mirrored in host and rig (see polykybd-claude).
-Re-run `cog -r hid/hid_com.c` (from `keyboards/polykybd/`) after changing the list or the table. `NUM_LANG` is 161.
+Re-run `cog -r lib/hid/hid_com.c` (from `keyboards/polykybd/`) after changing the list or the table. `NUM_LANG` is 161.
 Adding a language: the `add-polykybd-language` skill and
 [`docs/lang/future-languages.md`](../../../qmk_firmware/keyboards/polykybd/docs/lang/future-languages.md).
 
@@ -280,10 +285,10 @@ placement: [`docs/display/legend-layout.md`](../../../qmk_firmware/keyboards/pol
   `process_record_user()` for it too.
 - ⚠️ **Gate key→display mapping on `key_has_display(r,c)`** (74 keys, 72 OLEDs). Matrix
   and display indices differ on split72's right half; `key_display_index()` is the one
-  fold and `tools/check_disp_index.py` checks it (manual, not in CI). A bug on one half
+  fold and `dev/tools/check_disp_index.py` checks it (manual, not in CI). A bug on one half
   only is a sign of a wrong panel index.
 - ⚠️ **A gate that scans source must strip comments first**, or it matches its own
-  documentation. This binds every `tools/check_*.py`.
+  documentation. This binds every `dev/tools/check_*.py`.
 
 ### Split synchronisation
 
@@ -408,7 +413,7 @@ Each has a doc; the rules below bind code outside it.
 - **USB MIDI and the MIDI layer** ([`docs/features/midi.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/midi.md)): send-only
   (`MIDI_SEND_ONLY`, a patch to QMK core), off in the DOOM monolith. The slave learns
   the octave and velocity only from `poly_sync_t.midi_cfg`. The symbols are generated:
-  edit `tools/midi_glyphs.py`, never the `gfx_icons.h` block.
+  edit `dev/tools/midi_glyphs.py`, never the `gfx_icons.h` block.
 - **Demo mode** ([`docs/features/demo-mode.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/demo-mode.md)): ⚠️ demo
   mode must not change any behaviour outside demo mode (maintainer's rule). The key demo
   sends no modifier and no Tab. Its typing text IS the idle screen's poems.
@@ -427,9 +432,9 @@ Generated by `fontconvert` (`../Adafruit-GFX-Library/`) from
 - ⚠️ **Adding a resident FONT shifts every pack font's index and forces a full reship.**
   Extend `IconsFont` (U+100000..) instead. ⚠️ Two PRs that extend it at the same time
   take the same codepoints (#424 took U+100029 from #427). A generator starts after the
-  font's last glyph that is not its own (`tools/midi_glyphs.py`), and a test reads the
+  font's last glyph that is not its own (`dev/tools/midi_glyphs.py`), and a test reads the
   codepoint from `named_glyphs.h`, never a literal.
-- ⚠️ **`tools/check_glyph_coverage.py` must pass**: every codepoint a legend draws must
+- ⚠️ **`dev/tools/check_glyph_coverage.py` must pass**: every codepoint a legend draws must
   be in a font. A gap once HardFaulted the master (#329).
 - ⚠️ **No heavy work in a split-transaction handler**, and FONTPACK writes in place, so a
   slot is valid when its last chunk is written. Reship with the
@@ -450,7 +455,7 @@ skill. Closed investigations and the evidence behind the rules here:
   `mcuconf.h`). I2C0 at 2 caused the `0x16C1` boot hang.
 - **Reproduce a boot hang with `polyctl bootloop --rounds N`.** Ruling out a 1-in-N hang
   at ~95% takes about 3·N clean rounds.
-- ⚠️ **The RP2040 USB driver is a vendored copy** (`chibios_overrides/`). Diff it after
+- ⚠️ **The RP2040 USB driver is a vendored copy** (`lib/chibios_overrides/`). Diff it after
   every `lib/chibios-contrib` update.
 - **core1 runs with interrupts masked.** Don't remove it because of a theory alone.
 - **When clever theories do not explain a bug, do the mechanical, auditable thing:**
