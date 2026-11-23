@@ -107,6 +107,9 @@ For a workflow, a 404 from upstream means ours: 6 of the 25 are (`bump-version.y
 - ⚠️ **`.github/copilot-instructions.md` is upstream's and tells CodeRabbit to defer
   `release.yml`, `qmk-test.yml` and `CLAUDE.md` to a QMK Collaborator.** Reply with the
   evidence. Do not delete the file; it would conflict at the next upstream merge.
+- ⚠️ **The same file has a PolyKybd section at its top (qmk_firmware#472, 2026-11-23).**
+  J-Bot reads the file, and without the section it asks every PR to target `develop`.
+  Keep the section when an upstream merge conflicts on the file's first lines.
 
 Full procedure: `../polykybd-claude/docs/review-conventions.md` and the
 `verify-security-finding` skill.
@@ -157,6 +160,13 @@ Split keyboard (halves over a full-duplex UART at 1843200 baud), up to 72 per-ke
 `split72` (72 keys, RGB matrix, Cirque trackpad) and `split42` (CRKBD footprint) share
 one `poly_keymap.c`; each variant's `keymap.c` is data only. Don't reintroduce
 per-variant logic. [`docs/build/variants.md`](../../../qmk_firmware/keyboards/polykybd/docs/build/variants.md).
+
+- ⚠️ **Four tools parse `keys_com/poly_keymap.c` by name**, so these stay in that file:
+  `update_displays()` and `kdisp_idle()` (`dev/tools/check_disp_index.py`),
+  `to_static_text()` (the host's `scripts/export_preview_data.py`), `poly_ime_family()`
+  (`export_preview_data.py` and the `render-layer-board` skill's `render_layer.py`), and
+  `glyph_script_blocks[]` (the `add-glyph-script` skill). A moved function breaks its
+  parser without an error. The `split-poly-keymap` skill moves the rest.
 
 - ⚠️ **The two variants share the MCU schematic.** `variations/poly_corne/` (in the
   PolyKybd hardware repo) has no processor, so an MCU grep there finds nothing. An
