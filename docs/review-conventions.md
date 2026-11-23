@@ -199,9 +199,13 @@ and relative links were adjusted to suit a standalone file.
     same-repo, non-draft PR** in qmk_firmware, PolyKybdHost, polykybd-ctnd,
     wincompose, Adafruit-GFX-Library and gnome-wayland-winreader (since 2026-11-19).
     It runs as the `review` job of `.github/workflows/jbot-review.yml`, the same file
-    in all six repos: change one, copy it to the others. It uses Google Gemini
-    (`google/gemini-3.8-flash`; a `JBOT_REVIEW_MODEL` repository variable overrides
-    it) with the `GEMINI_API_KEY` secret of each repo, on the maintainer's paid tier.
+    in all six repos: change one, copy it to the others. Since 2026-11-23
+    (qmk_firmware#471) it uses Codex (`codex/default`) through the maintainer's
+    ChatGPT login in the `CODEX_AUTH_JSON` secret. Codex has a floating 5-hour usage
+    window, so six reviews started at once use a large part of it. A
+    `JBOT_REVIEW_MODEL` repository variable set to a `google/...` model switches back
+    to Gemini with the `GEMINI_API_KEY` secret. The review footer names the model
+    ("Reviewed with `codex/default`").
     It skips fork PRs, drafts, Dependabot and merged PRs. It cannot be asked by hand:
     a push, reopen or ready-for-review starts it. A clean review says "Good to go
     from jbot-review" with "No new findings"; the review body names the commit it
@@ -210,6 +214,17 @@ and relative links were adjusted to suit a standalone file.
     2026-11-19 it failed first because Google had retired `gemini-2.5-flash`, then
     because six PRs at once used up the free tier (20 requests a day; one review
     uses 3 or 4). The check is not required, so it does not block a merge.
+    ⚠️ **A re-run cannot pick up a changed `jbot-review.yml`.** The workflow runs on
+    `pull_request`, so it reads the file from the PR's merge commit, and a job
+    re-run reuses that commit. After the workflow changes on the default branch,
+    merge the default branch into each PR and push. On 2026-11-23 six re-runs after
+    the Codex switch still called Gemini and failed with "prepayment credits are
+    depleted"; a merge of #471 into each branch fixed it.
+    ⚠️ **In qmk_firmware the guideline pass reads `.github/copilot-instructions.md`**,
+    which is upstream QMK's checklist. Before qmk_firmware#472 added a PolyKybd
+    section to its top, J-Bot reported "targets the wrong branch, retarget to
+    `develop`" as P1 or P2 on four refactor PRs (#466, #468–#470). Decline that
+    finding with the evidence if it comes back.
     ⚠️ The action and checkout are pinned to commit SHAs, but the action runs the
     image `ghcr.io/pgup-ai/jbot-review:latest`, which is not pinned.
     ⚠️ A push with no new findings gets no new J-Bot review. When J-Bot has already
