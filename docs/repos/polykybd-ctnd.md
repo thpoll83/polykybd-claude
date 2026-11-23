@@ -72,6 +72,13 @@ skill. Unreliable ideas go to [`docs/FUTURE_TESTS.md`](../../../polykybd-ctnd/do
   `hil-extended` PR label, `[hil-extended]` in a commit, a dispatch, or the UI toggle.
   ⚠️ A re-run replays the original event, so a label added later is invisible. Tier is
   about cost, never confidence.
+- **The first-run tutorial is its own rig configuration** (`--tutorial`,
+  `TIER_TUTORIAL`, `station/first_run_tutorial.py`). It needs images built with
+  `-e POLYKYBD_DEBUG=yes` (`debug_enable` on at boot, so cmd 14 can press keys); the
+  qmk-test.yml `tutorial-test` job builds them on the `hil-tutorial` label. It runs only
+  the tutorial test and the crash scan. ⚠️ It follows the `Tutorial phase <NAME>` console
+  lines, so a change to the tutorial's step order in `base/tutorial_plan.c` needs the
+  matching change in the test.
 - ⚠️ **`RawHID.send()` retries by re-writing the request.** That is safe only for
   idempotent commands. A call that observes a one-shot side effect (GET_ID's fresh-boot
   marker, REBOOT) is pinned to `attempts=1` at the call site. Don't special-case a
@@ -156,7 +163,8 @@ that need no change too.
   show drift as a header badge and a ⚕ Diagnose line; the fix is
   `setup.sh --units-only`. A compensating sync (like CI's force-sync) hides the
   difference between slow and absent.
-- [ ] GPIO-driven key matrix simulation, so tests can press keys.
+- [ ] GPIO-driven key matrix simulation, so tests can press keys on a normal image (the
+  tutorial configuration presses keys only through cmd 14 on a debug image).
 - [ ] Test `scripts/setup.sh` on a fresh RPi4.
 
 For UI work the Flask dev server runs directly:

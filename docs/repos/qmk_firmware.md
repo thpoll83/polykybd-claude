@@ -131,10 +131,9 @@ rules are in polykybd-claude. Mechanics, the `release-notes` branch and the gate
 ## Firmware overview
 
 RP2040 (dual M0+) at **200 MHz** (since 0.11.0; 125 MHz before), with the core voltage
-raised to 1.15 V by `POLYKYBD_VREG_VSEL`. `-e POLYKYBD_SYS_CLK=125` builds an image
-byte-identical to the pre-200 MHz builds. Peripherals derive their dividers from the
-live `clk_sys`, except XIP flash (`clk_sys/PICO_FLASH_SPI_CLKDIV` = 4); re-check that if
-another clock is added. The boot banner prints `clk: sys=…Hz vreg_vsel=0x…`.
+raised to 1.15 V by `POLYKYBD_VREG_VSEL`. There is no other clock setting. Peripherals
+derive their dividers from the live `clk_sys`, except XIP flash
+(`clk_sys/PICO_FLASH_SPI_CLKDIV` = 4); re-check that if the clock changes. The boot banner prints `clk: sys=…Hz vreg_vsel=0x…`.
 
 **8 MB external QSPI flash** (BY25Q64ES on rev 3.3 boards, W25Q64JV on earlier
 revisions; both erase 4 KB sectors and 64 KB blocks and support erase suspend/resume,
@@ -398,9 +397,9 @@ Each has a doc; the rules below bind code outside it.
   ⚠️ a legend is not evidence a keycode does anything; grep for the `case` that handles
   it. Enable an effect on both variants. New RGB defaults reach only a fresh eeconfig.
 - **Cirque trackpad** ([`docs/features/trackpad.md`](../../../qmk_firmware/keyboards/polykybd/docs/features/trackpad.md)): the gesture
-  layer is the default (`-e POLYKYBD_CIRQUE_RELATIVE=yes` opts out). A flavour only a
-  hand-typed `-e` reaches is tested by nothing. `POINTING_DEVICE_ROTATION_90` is
-  relative-only.
+  layer is the only mode: absolute mode, 4X gain and the curved overlay are fixed in
+  `split72/config.h`. ⚠️ Do not add a build option for another mode: a flavour only a
+  hand-typed `-e` reaches is tested by nothing (the reason qmk#453 removed four).
 - **Community modules** ([`docs/build/community-modules.md`](../../../qmk_firmware/keyboards/polykybd/docs/build/community-modules.md),
   skill `extract-qmk-module`): declared in each variant's `keyboard.json` (there is no
   `keyboards/polykybd/keyboard.json`), and listing a module is the enable. Module hooks
