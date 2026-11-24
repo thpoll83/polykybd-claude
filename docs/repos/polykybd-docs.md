@@ -48,7 +48,7 @@ page.
 ## Writing style
 
 Plain, technical English that a non-native reader can follow. #131 and #133 removed the
-habits below from all 65 pages, so don't bring them back.
+habits below from all pages, so don't bring them back.
 
 - **No idioms or metaphors.** Write the plain verb: load-bearing → required; escape hatch →
   build option; lands → is written to / appears; wins, outranks → takes priority; lives in →
@@ -74,10 +74,14 @@ habits below from all 65 pages, so don't bring them back.
   Collection config: `src/content.config.ts` (Astro 6+ refuses the legacy
   `src/content/config.ts`).
 - **The sidebar is hand-curated** in `astro.config.mjs`. A page without an entry is
-  invisible.
-- **`redirects:`** in the same file emit meta-refresh stubs (7 today) that are not
+  invisible. A section with sub-pages (`using/overlays/`, `using/languages/`,
+  `using/ai-agents/`, `reference/hid-protocol/`) has its page in `index.mdx` and lists
+  each sub-page as its own entry.
+- **Diagrams stop at `--pk-diagram-max-width`** (`custom.css`, 85rem). The root font size is
+  80%, so 1 rem is 12.8 px. Mermaid keeps its natural size when that is smaller.
+- **`redirects:`** in the same file emit meta-refresh stubs (9 today) that are not
   Starlight pages, so nothing from `head` reaches them. "Every HTML file in `dist/`" and
-  "every page" (65 content pages today) are different counts.
+  "every page" (85 content pages today) are different counts.
 - **`routeMiddleware: './src/starlightRouteData.ts'`** clears `toc`, so there is no
   right-hand table of contents and the right side of the viewport is free.
 - ⚠️ **Starlight's CSS is in `@layer starlight.*`, and an unlayered rule takes priority
