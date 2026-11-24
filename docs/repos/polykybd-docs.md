@@ -66,7 +66,8 @@ habits below from all pages, so don't bring them back.
 - Real technical terms stay (magic number, CRC, starve, backpressure, surface finish), and
   so do product names (Eden, Flow Tap, IDDQD).
 - ⚠️ **Renaming a heading changes its anchor.** Grep `src/` for `#<old-anchor>` and fix
-  every link in the same change.
+  every link in the same change. Moving a heading to another page also breaks outside
+  links: add the old URL and the new URL to the map in `public/js/legacy-anchors.js`.
 
 ## Architecture
 
