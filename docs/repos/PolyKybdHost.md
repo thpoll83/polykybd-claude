@@ -350,6 +350,10 @@ Tests are unittest, not pytest; GUI tests need `xvfb-run -a`.
 - ⚠️ **A change to concurrent file access is not done when the tests pass.** Mutation-sweep
   it and race it with real processes.
 - **Run the real entry point once before believing a mocked suite.**
+- ⚠️ **The `.gitignore` rule `profile.*` hides any `profile.py`.** It hid
+  `tests/fuzz/profile.py`, so every fuzz module failed to import in a clean clone while
+  the local suite passed (7022 tests, CodeRabbit on #1026). Run a new test package from a
+  clean `git archive HEAD | tar -x -C <dir>` extract.
 - ⚠️ **Test methods appended after `if __name__ == "__main__":` never run.** Check the
   test count changed.
 - ⚠️ **`patch.object(Class, "method")` does not reach a fixture that already bound it.**

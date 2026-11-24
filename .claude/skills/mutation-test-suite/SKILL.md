@@ -1,6 +1,6 @@
 ---
 name: mutation-test-suite
-description: Prove a test suite actually detects breakage before trusting it — googletest (`make test:<name>`, firmware) or Python/unittest (PolyKybdHost, polykybd-ctnd) — deliberately break the code under test N ways, confirm each mutation is caught, and confirm the INTENDED test is the one that fails. Use right after writing or extending a `make test:<name>` or `*_test.py` suite, when reviewing a PR that adds tests, when a suite has never failed and you want to know whether it can, or when asked "are these tests any good / do they actually test anything". NOT for finding bugs in the code (that is what the tests are for) and NOT for firmware behaviour on hardware (see diagnose-hil-failure / measure-firmware-perf).
+description: Prove a test suite actually detects breakage before trusting it — googletest (`make test:<name>`, firmware), Python/unittest (PolyKybdHost, polykybd-ctnd) or a libFuzzer harness (qmk_firmware dev/fuzz) — deliberately break the code under test N ways, confirm each mutation is caught, and confirm the INTENDED test is the one that fails. Use right after writing or extending a `make test:<name>` or `*_test.py` suite, when reviewing a PR that adds tests, when a suite has never failed and you want to know whether it can, or when asked "are these tests any good / do they actually test anything". NOT for finding bugs in the code (that is what the tests are for) and NOT for firmware behaviour on hardware (see diagnose-hil-failure / measure-firmware-perf).
 ---
 
 # Mutation-test a suite — googletest or Python/unittest
@@ -159,6 +159,32 @@ unreadable — so `else` on "not 0" silently treats a missing baseline as succes
 hence the `case`. ⚠️ The restore overwrites the file, and by that premise there is
 no committed copy to recover from: **do not edit the source between mutating and
 restoring.**
+
+## 2c. The libFuzzer harness variant (qmk_firmware `dev/fuzz/`)
+
+A fuzz harness is a test whose inputs are random, so a mutation is "caught" when the
+fuzzer stops on it within a short run. Use this after adding or tightening a harness check
+(the `add-fuzz-target` skill links here).
+
+```bash
+cd /home/user/qmk_firmware/keyboards/polykybd
+cp base/<parser>.c /tmp/claude-0/<parser>.bak            # mutate the parser, not the harness
+# ... apply ONE mutation to base/<parser>.c ...
+cd dev/fuzz && make CC=clang-18 build/fuzz_<t> >/dev/null
+d=/tmp/claude-0/mm; rm -rf $d; mkdir -p $d
+./build/fuzz_<t> -max_total_time=40 -artifact_prefix=$d/ $d corpus/<t> 2>&1 \
+  | grep -oE "invariant [0-9]+ broken|ERROR: AddressSanitizer[^ ]*" | head -1
+cp /tmp/claude-0/<parser>.bak ../../base/<parser>.c      # restore before the next one
+```
+
+- The scratch folder goes FIRST, or the fuzzer writes into the committed `corpus/<t>`.
+- Expect the check you wrote for that rule to fire (`invariant N broken`), or ASan for a
+  read past the input. Silence after 40 s means the check cannot see that mistake.
+- A mutation in a helper shared by two checks can trip the other one first (a byte-order
+  swap in `slot_at` broke validation, check 1, not decode, check 2, on qmk#480). To prove
+  a specific check, mutate only the function it covers.
+- Good first mutations: a no-op matcher or updater, an unconditional END/refusal, an
+  off-by-one bound, an output written before a refusal, one extra byte read.
 
 ## 3. Read the result correctly
 
