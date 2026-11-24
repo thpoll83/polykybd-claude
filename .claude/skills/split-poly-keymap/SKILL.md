@@ -90,6 +90,10 @@ python3 /home/user/polykybd-claude/.claude/skills/split-poly-keymap/check_moved_
 - No unit test suite compiles `poly_keymap.c` or the `keys_com/` files. The HIL run on
   the PR is the behaviour check. A PR that moves suspend, wake or reboot code also gets
   the `hil-fwapply` label.
+- To prove an include removal or another no-op edit changes nothing, compile the one
+  object in every build configuration with `-Wundef` and compare it byte for byte with
+  the base object (#475: 7 configurations, about 230 compiles each). A full build that
+  still links does not show that a macro now takes its default value.
 - In a fresh `git worktree`, the `lib/` submodule directories are empty and
   `qmk compile` fails. Symlink each empty `lib/<x>` to `/home/user/qmk_firmware/lib/<x>`
   and never stage the symlinks (`git add` with explicit paths).
@@ -118,6 +122,12 @@ and most edit `poly_keymap.c` near each other.
      the moved-out side. ⚠️ Taking one side for the whole file kept a block #465 had
      already moved to `rgb.c`, and the build failed with "static declaration of
      `flash_rgb_tick` follows non-static" (#468).
+   - A `poly_keymap.c` hunk where BOTH sides moved code out, each to its own new file,
+     resolves to empty (#466, #467, #470). First check that every function on both sides
+     is in its new file.
+   - ⚠️ After the hunks are removed, a closing `}` that both sides shared can be left
+     outside them. On #470 the build then failed with "expected identifier or '(' before
+     '}'" at the end of the file.
 3. Build both boards, run `check_disp_index.py`, push, wait for green, merge. Repeat.
 
 This costs one extra HIL run per PR. Merging the PRs without that step merges code

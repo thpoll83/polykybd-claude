@@ -43,6 +43,11 @@ container, so don't claim it is unavailable. Setup, submodule failures, the
   gcc 13.2 shows 400–500 B more headroom than CI's gcc 15.2.** The PR job
   "Build release shape" runs the release's `build_pack.sh` and prints the headroom
   (`dev/tools/ram_report.py`). Trust its number, not a local build (v1.9.1 failed 40 B over).
+- ⚠️ **CI's gcc 15.2 also rejects code that the local gcc 13.2 builds without a warning.**
+  `char codes[][4] = {"enUS", ...}` fails CI with
+  `-Werror=unterminated-string-initialization`: a four-character literal leaves no room
+  for the NUL (qmk_firmware#473, 2026-11-24). Write one string literal and index it by
+  `i * 4`. A green local build does not prove the PR builds; wait for CI.
 - **Docker is not usable** in the remote container (no daemon).
 - ⚠️ **"It booted" is not evidence a flash was written. Make the artifact identify
   itself.** The handedness banner prints `slot=N/M writer=0xNN` for this reason. When a

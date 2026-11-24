@@ -90,6 +90,12 @@ Apply these four rules on top of the base skill's per-version gathering:
      (2026-10-10) folded 1.16.3–1.16.5, 1.16.7 and 1.16.9 but left out 1.16.10–1.16.11,
      and the user had to add them. A gap in the line reads as versions that never
      existed.
+     ⚠️ **The other way round too: a version number can be skipped.** Merges that land
+     close together can end in one bump commit, so the tree went from 1.13.31 to
+     1.13.34 and 1.13.32 and 1.13.33 never existed (firmware, 2026-11-24). Take the
+     versions from the bump commits (`git log --format=%s <tag>..origin/<default> |
+     grep -o 'version to [0-9.]*'`), not from a range, so the line names none that
+     never existed.
    ⚠️ **Judge the interval by its DIFF, not by its commit subjects.** An interval whose
    log reads like docs can still carry a user-facing fix in the same merge — a clipped
    UI label and a stale preview stamp were both dropped into the maintenance line on the
