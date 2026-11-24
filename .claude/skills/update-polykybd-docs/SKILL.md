@@ -125,10 +125,14 @@ Cheap checks first (no build needed):
 
 ```bash
 cd ../polykybd-docs
-# every internal /section/page link resolves to a file:
-grep -rhoE '\]\(/[a-z0-9-]+/[a-z0-9-]+' src/content/docs --include='*.md' --include='*.mdx' \
-  | sed -E 's/^\]\(//' | sort -u \
-  | while read -r l; do [ -f "src/content/docs$l.mdx" ] || [ -f "src/content/docs$l.md" ] || echo "BROKEN: $l"; done
+# every internal link resolves to a page or a section index (dir/index.mdx);
+# files under public/ (/img, /js) are skipped:
+grep -rhoE '\]\(/[a-z0-9/-]+' src/content/docs --include='*.md' --include='*.mdx' \
+  | sed -E 's/^\]\(//; s|/+$||' | sort -u | grep -vE '^$|^/(img|js)/' \
+  | while read -r l; do
+      d="src/content/docs$l"
+      [ -f "$d.mdx" ] || [ -f "$d.md" ] || [ -f "$d/index.mdx" ] || [ -f "$d/index.md" ] || echo "BROKEN: $l"
+    done
 ```
 
 Then a full build. **Try plain `npm ci` first — it works, and `sharp` installs:**
