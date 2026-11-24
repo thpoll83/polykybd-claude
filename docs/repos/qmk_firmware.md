@@ -32,6 +32,10 @@ container, so don't claim it is unavailable. Setup, submodule failures, the
 
 - ⚠️ **`qmk` is at `/root/.qmk_venv/bin/qmk`, not on `PATH`.**
   `export QMK_HOME=$PWD && export PATH="/root/.qmk_venv/bin:$PATH"`.
+- ⚠️ **The root `.gitignore` excludes every Makefile under `keyboards/`**
+  (`/keyboards/**/Makefile`). A new one is never committed and nothing warns: add it with
+  `git add -f` and check `git ls-files`. The fuzz Makefile was missing from #476, so all
+  five fuzz CI jobs failed with "No rule to make target".
 - ⚠️ **Never run two `qmk compile` at once.** All flavours share `.build/`, and the
   collision appears as an `undefined reference`.
 - **The test deliverable is the `.bin`, not the `.uf2`** (the user flashes over HID),
@@ -94,6 +98,28 @@ red rig check; `debug-firmware-on-rig` runs a one-off probe.
 - ⚠️ **Applying N labels in one API call fires N workflow runs.**
 - ⚠️ **A `check_suite.completed` wake can name a superseded head.** Compare its
   `head_sha` with the PR head.
+
+## Fuzzing
+
+The libFuzzer harnesses, targets, input layouts and crash steps are in
+[`dev/fuzz/README.md`](../../../qmk_firmware/keyboards/polykybd/dev/fuzz/README.md). The
+`add-fuzz-target` skill adds a target.
+
+- ⚠️ **Run a fuzzer by hand with a scratch corpus folder first:**
+  `./build/fuzz_<t> /tmp/c_<t> corpus/<t>`. libFuzzer writes new inputs into the first
+  folder, so `corpus/<t>` first fills the committed seeds with SHA-named files (35 of
+  them on #480). `make run-<t>` already passes `build/corpus_<t>` first.
+- ⚠️ **The workflow's `paths:` must list every header the fuzzed sources include**, from
+  `clang -MM` (the Makefile's `HDRS`), not only the sources. J-Bot found five missing on
+  #477. `-MMD` cannot generate that list: with several sources in one command it records
+  only the last source's headers (CodeRabbit on #476).
+- ⚠️ **A harness check that is a bound passes when the function does nothing.** Compare
+  against an exact model (the value, the offset, the transition), and prove each check by
+  breaking the parser and watching the fuzzer stop on it. J-Bot found seven loose checks
+  over two reviews of #480.
+- ⚠️ **Only the `report-crash` job has `issues: write`.** The fuzz job builds and runs PR
+  code and keeps a read-only token. A crash issue opens only when the `Run the fuzzer`
+  step failed, not on an install or build failure.
 
 ## Upstream files and security findings
 
@@ -204,6 +230,13 @@ per-variant logic. [`docs/build/variants.md`](../../../qmk_firmware/keyboards/po
   `id_dynamic_keymap_reset`, and `dynamic_keymap_reset_poly()` resets layers 0..8 (keys
   and encoder bindings) and zeroes the macro buffer. The host has no EEPROM clear.
 - **All keymap mutation goes through a `*_poly` wrapper in `split_sync.c`.**
+- ⚠️ **A split-link receive handler must not trust the peer, even when the master
+  clamps the same value** (FW-13, #479). Check `in_len` before reading any field: the
+  RPC buffer is shared, so bytes past `in_len` are left over from an earlier frame. Refuse
+  a bad frame (`refused = true` → `SYNC_NACK_REFUSED`) and write nothing; truncating it
+  and answering `SYNC_ACK` tells the master a partial write was the whole update. #479
+  needed three rounds to get both rules: the clamp (Sourcery), then the length check
+  after the fields were read (J-Bot).
 - ⚠️ **`poly_keycode_at()` is the one resolver for legend and action**, so a derivation
   there cannot make a key show one thing and type another. The host layout editor reads
   EEPROM directly and cannot see such a derivation, which is why the F-row alignment is
