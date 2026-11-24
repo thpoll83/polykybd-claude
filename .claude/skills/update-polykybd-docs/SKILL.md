@@ -48,12 +48,13 @@ there or it won't appear in the nav.
 
 | You changed… | Update these pages |
 |---|---|
-| HID command / `PROTOCOL_VERSION` | `reference/hid-protocol.mdx` — the command table **and** the per-version history list. Bump the "current" version. |
+| HID command / `PROTOCOL_VERSION` | `reference/hid-protocol/` — the command table in `index.mdx`, the byte layout in `message-formats.mdx`, and the per-version history in `protocol-versions.mdx`. Bump the "current" version. |
 | A `polyctl` subcommand | `software/cli.mdx` (subcommand table) |
 | Host setting / daemon / startup | `software/usage.mdx`, `software/architecture.mdx`, or `setup/installation.mdx` |
 | Keyboard feature (glyph script, idle, brightness, font pack, overlays) | the matching page under `using/` or `firmware/` (add a new page if it's a new feature area) |
-| A new language / layout | `using/languages.mdx` |
-| New term worth defining | `reference/glossary.mdx` |
+| A new language / layout | `using/languages/index.mdx` (the Intl layer is `using/languages/intl-layer.mdx`) |
+| An app with an overlay | `using/overlays/supported-apps.mdx` |
+| New term worth defining | `reference/glossary.md` |
 | Anything genuinely new | add a page **and** a sidebar entry in `astro.config.mjs`; consider a cross-link from a related page so it's discoverable |
 
 Match the site's voice: **user-facing**, plain technical English, `<Aside>` callouts
@@ -124,10 +125,14 @@ Cheap checks first (no build needed):
 
 ```bash
 cd ../polykybd-docs
-# every internal /section/page link resolves to a file:
-grep -rhoE '\]\(/[a-z0-9-]+/[a-z0-9-]+' src/content/docs --include='*.md' --include='*.mdx' \
-  | sed -E 's/^\]\(//' | sort -u \
-  | while read -r l; do [ -f "src/content/docs$l.mdx" ] || [ -f "src/content/docs$l.md" ] || echo "BROKEN: $l"; done
+# every internal link resolves to a page or a section index (dir/index.mdx);
+# files under public/ (/img, /js) are skipped:
+grep -rhoE '\]\(/[a-z0-9/-]+' src/content/docs --include='*.md' --include='*.mdx' \
+  | sed -E 's/^\]\(//; s|/+$||' | sort -u | grep -vE '^$|^/(img|js)/' \
+  | while read -r l; do
+      d="src/content/docs$l"
+      [ -f "$d.mdx" ] || [ -f "$d.md" ] || [ -f "$d/index.mdx" ] || [ -f "$d/index.md" ] || echo "BROKEN: $l"
+    done
 ```
 
 Then a full build. **Try plain `npm ci` first — it works, and `sharp` installs:**
