@@ -35,6 +35,13 @@ xvfb-run -a .venv/bin/python scripts/run_tests.py              # whole suite: us
   into the venv before it runs; still read the `Ran N` line.
 - ⚠️ **Baseline in place, not in a `/tmp` worktree**, which skips every test gated on
   `../qmk_firmware`.
+- ⚠️ **A test that builds `PolyForwarder` starts three real things.** `BrowserUrlSource`
+  binds 127.0.0.1:50164. `editor_plugins.start_refresh_thread()` and a
+  `browser_extension.update_if_outdated` thread can rewrite integrations that the user
+  installed outside the temp directory. Replace all three before the constructor runs.
+  `forwarder.py` binds `BrowserUrlSource` at import, so patch
+  `polyhost.handler.browser_url_source.BrowserUrlSource` before `import polyhost.forwarder`.
+  Pattern: `tests/gui/forwarder_host_test.py`.
 
 **Normal mode** owns the keyboard and tracks the local window. **Forwarder mode** runs on
 another machine with no keyboard and relays its focused window over TCP to the normal

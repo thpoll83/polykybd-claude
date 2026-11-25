@@ -57,7 +57,8 @@ Each rule has its incident and full text in [`docs/web-session.md`](docs/web-ses
   unpushed. Check `git ls-remote origin refs/heads/<branch>`, then
   `git config --add remote.origin.fetch '+refs/heads/<branch>:refs/remotes/origin/<branch>'`
   (`--add`, and no `*` wildcard).
-- ⚠️ `merge_pull_request`'s `expectedHeadSha` must be the full 40 characters.
+- ⚠️ `merge_pull_request`'s `expectedHeadSha` must be the full 40 characters, copied from
+  `.head.sha`. A sha typed from memory gives `409 Head branch was modified`.
 - `gh api` works for reads, including waiting for check runs and re-running a job.
   Chromium is installed headless (`/opt/pw-browsers/chromium`): look at rendered output.
 - Before the first commit in each repo: `git config user.email noreply@anthropic.com &&

@@ -59,6 +59,27 @@ git fetch origin --unshallow --no-recurse-submodules   # ~45 s
 git fetch origin 'refs/tags/*:refs/tags/*'             # host clones may lack the tag
 ```
 
+⚠️ **A repo that is not attached has no releases API and no checkout.** `add_repo` with
+`access: "read"` gives git reads only, and `gh api repos/<repo>/releases` returns 403. To
+see whether it has unreleased changes without attaching it with push access:
+
+```bash
+curl -sS https://raw.githubusercontent.com/thpoll83/qmk_firmware/PolyKybd/keyboards/polykybd/config.h \
+  | grep FW_VERSION                                    # the tree's version
+GIT_LFS_SKIP_SMUDGE=1 git clone -q --no-checkout --depth 80 --filter=blob:none \
+  --single-branch -b PolyKybd https://github.com/thpoll83/qmk_firmware fwlog
+git -C fwlog log --first-parent --format='%h %ad %s' --date=short -40
+```
+
+The blobless clone has the commit messages only and finishes well inside five minutes.
+Compare the tree's version with the version the last host release names (the host notes
+say which firmware to pair with). The firmware release list itself still needs the user,
+or an attach with push access. (2026-11-25: this found firmware 1.13.36 with a stack
+write and three split-frame bounds fixes past 1.13.34, after an earlier answer of
+"nothing to release".) Do not run `git reset --hard origin/<default>` in a checkout that
+holds a feature branch to read the range: the auto-mode classifier denies it. Use
+`git show origin/<default>:<path>` or `git worktree add --detach <dir> origin/<default>`.
+
 Gather the commits per version with the `polykybd-release-notes` mechanics (bump
 commits are the boundaries: `chore: bump firmware version to X.Y.Z [skip ci]` /
 `chore: bump host version to X.Y.Z [skip ci]`; pull commit bodies + the relevant
