@@ -221,7 +221,10 @@ not the rig: a self-hosted HIL job that cannot start stays `queued` instead
   A sha rebuilt from an 8-character prefix returns `409 Head branch was modified` and
   merges nothing; a wrong length returns "The sha parameter must be exactly 40
   characters". Read `.head.sha` from `pull_request_read` for each merge rather than
-  reusing a short sha from a commit listing.
+  reusing a short sha from a commit listing. A full-length sha whose last characters
+  were typed from memory gives the same 409, so the message does not point at the cause
+  (PolyKybdHost#1030, 2026-11-25: `gh api repos/thpoll83/PolyKybdHost/pulls/1030 --jq
+  .head.sha` gave the real value).
 - **Chromium is installed headless** (`/opt/pw-browsers/chromium`, also through
   Playwright). Look at generated HTML, SVG and rendered pages instead of reasoning
   about the markup.
