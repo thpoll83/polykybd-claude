@@ -195,19 +195,23 @@ and relative links were adjusted to suit a standalone file.
     (`requirements.txt`) and `game_assets/build.py` imports it before any reader
     loads, so a lazy import there saves nothing; decline it with that evidence
     (PolyKybdHost#495, 2026-11-04).
-  - **J-Bot (`github-actions[bot]`, review titled "J-Bot Code Review") reviews every
-    same-repo, non-draft PR** in qmk_firmware, PolyKybdHost, polykybd-ctnd,
-    wincompose, Adafruit-GFX-Library and gnome-wayland-winreader (since 2026-11-19).
-    It runs as the `review` job of `.github/workflows/jbot-review.yml`, the same file
-    in all six repos: change one, copy it to the others. Since 2026-11-23
+  - **J-Bot (`github-actions[bot]`, review titled "J-Bot Code Review") reviews only on
+    demand** (since 2026-11-25) in all nine repos: the six code repos plus
+    polykybd-docs, polykybd-claude and polykybd-telemetry-data. Ask for it with a
+    `/jbot` comment on the PR (the owner or a collaborator), or run "J-Bot Code Review"
+    in the Actions tab with the PR number. It runs as the `review` job of
+    `.github/workflows/jbot-review.yml`, the same file in all nine repos: change one,
+    copy it to the others. GitHub runs a `/jbot` comment with the workflow file from
+    the default branch, so a change to that file is tested before its merge by a manual
+    run on the PR's branch. Since 2026-11-23
     (qmk_firmware#471) it uses Codex (`codex/default`) through the maintainer's
     ChatGPT login in the `CODEX_AUTH_JSON` secret. Codex has a floating 5-hour usage
     window, so six reviews started at once use a large part of it. A
     `JBOT_REVIEW_MODEL` repository variable set to a `google/...` model switches back
     to Gemini with the `GEMINI_API_KEY` secret. The review footer names the model
     ("Reviewed with `codex/default`").
-    It skips fork PRs, drafts, Dependabot and merged PRs. It cannot be asked by hand:
-    a push, reopen or ready-for-review starts it. A clean review says "Good to go
+    It refuses fork PRs (a first step checks the PR head) and skips merged PRs. A push
+    no longer starts it. A clean review says "Good to go
     from jbot-review" with "No new findings"; the review body names the commit it
     read. Verify its findings like any other bot's.
     ⚠️ A red `review` check is a J-Bot error, not a finding: read the job log. On
@@ -216,8 +220,7 @@ and relative links were adjusted to suit a standalone file.
     uses 3 or 4). The check is not required, so it does not block a merge.
     ⚠️ **About 12 Codex reviews in 30 minutes used up the window** (2026-11-23, 21:18
     UTC). The job log then says "usageLimitExceeded ... try again at <time>", and the
-    `review` check is red until that time. Every push starts a review, so a base merge
-    into each of several PRs counts too. Comment once per PR with the job id, and merge
+    `review` check is red until that time. Ask for one PR at a time. Comment once per PR with the job id, and merge
     when every other check, HIL included, is green and J-Bot reviewed the PR's code
     before the limit.
     ⚠️ **A re-run cannot pick up a changed `jbot-review.yml`.** The workflow runs on
@@ -280,8 +283,9 @@ and relative links were adjusted to suit a standalone file.
     When they are out, CodeRabbit's one review per hour is the only one left, for all
     repos together. Spend it on the PR that has no other review, and set a reminder
     for the next hour instead of asking again at once.
-    ⚠️ **Since 2026-11-14 (maintainer's rule): when no other bot can review a PR,
-    ask Revix by hand** with `@revix-ai-review review`. "Cannot review" means
+    ⚠️ **Since 2026-11-25 (maintainer's rule): CodeRabbit and Sourcery first; when
+    they cannot review a PR, ask Revix by hand** with `@revix-ai-review review`
+    **and J-Bot with a `/jbot` comment**. "Cannot review" means
     CodeRabbit refused the request as rate limited or skipped it, Sourcery answered
     "you've used your own review budget" or "too large", and Greptile and Qodo are
     over their limits or paused. On PolyKybdHost#875 Sourcery was out of budget and Revix
