@@ -87,7 +87,9 @@ red rig check; `debug-firmware-on-rig` runs a one-off probe.
   "overlays back on after a suspend (cmd 24/15)" simulates a suspend over HID and never
   suspends the bus. The only real USB suspend is "USB suspend with Eden on core1", and it
   SKIPs (the run stays green) when the Pi's suspend helper refuses to unbind an interface.
-  The fix is `setup.sh --units-only` on the Pi (qmk#481, 2026-11-25).
+  When the skip comes from an outdated helper, run `sudo bash ./scripts/setup.sh --units-only`
+  on the Pi from the `polykybd-ctnd` checkout root (qmk#481, 2026-11-25). An unbind that
+  still fails after that needs its own diagnosis.
 - ⚠️ **A rig test from an unmerged `polykybd-ctnd` PR never runs.** CI force-syncs the
   rig to ctnd `main`. Merge the ctnd PR first, then re-run HIL.
 - ⚠️ **A HIL job that never starts is not red, and alerts nobody.** An offline rig
