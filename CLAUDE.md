@@ -52,6 +52,8 @@ Each rule has its incident and full text in [`docs/web-session.md`](docs/web-ses
   `git fetch origin --unshallow --no-recurse-submodules`.
 - ⚠️ The checkout can be behind what this session pushed, or reset. Before you conclude
   work is missing: `git fetch origin <branch> && git log --oneline HEAD..FETCH_HEAD`.
+  The same holds for this repo: `git -C /home/user/polykybd-claude fetch origin main` before
+  you call a rule out of date (2026-11-26: three rule commits were missing locally).
 - ⚠️ A transient 500 is not a capability limit. Retry in a later turn.
 - ⚠️ An `add_repo` clone fetches only the default branch, so a pushed branch reads as
   unpushed. Check `git ls-remote origin refs/heads/<branch>`, then

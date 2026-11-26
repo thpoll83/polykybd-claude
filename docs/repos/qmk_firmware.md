@@ -84,6 +84,10 @@ red rig check; `debug-firmware-on-rig` runs a one-off probe.
 - ⚠️ **A green HIL run can cover none of your change.** Grep the job log for your test's
   own name and read the `SKIP` lines. #298 merged on a green extended run that skipped
   all four doom tests.
+  "overlays back on after a suspend (cmd 24/15)" simulates a suspend over HID and never
+  suspends the bus. The only real USB suspend is "USB suspend with Eden on core1", and it
+  SKIPs (the run stays green) when the Pi's suspend helper refuses to unbind an interface.
+  The fix is `setup.sh --units-only` on the Pi (qmk#481, 2026-11-25).
 - ⚠️ **A rig test from an unmerged `polykybd-ctnd` PR never runs.** CI force-syncs the
   rig to ctnd `main`. Merge the ctnd PR first, then re-run HIL.
 - ⚠️ **A HIL job that never starts is not red, and alerts nobody.** An offline rig
