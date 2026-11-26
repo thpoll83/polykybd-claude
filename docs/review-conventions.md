@@ -226,6 +226,11 @@ and relative links were adjusted to suit a standalone file.
     ⚠️ A /jbot run cancelled within seconds was cancelled by another comment's run
     (fixed by the concurrency suffix); start it again from the Actions tab
     (workflow_dispatch with the PR number).
+    ⚠️ **When you edit `jbot-review.yml`:** GitHub evaluates the `concurrency:` group
+    before the job's `if:`. So a comment run that the `if:` skips still joins the group
+    and can cancel a running review (ctnd#171, run 45773111368). An empty string `''` is
+    false in an expression: `(cond) && '' || '-other'` always gives `-other`. Write
+    `!(cond) && '-other' || ''`.
     ⚠️ **A re-run cannot pick up a changed `jbot-review.yml`.** The workflow runs on
     `pull_request`, so it reads the file from the PR's merge commit, and a job
     re-run reuses that commit. After the workflow changes on the default branch,
