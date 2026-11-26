@@ -274,6 +274,8 @@ and relative links were adjusted to suit a standalone file.
       posts a COMMENTED review *"This review was skipped because it would exceed your
       organization's monthly flex usage limit"* (docs#147). Its `Greptile Review`
       check stays green.
+      Greptile's trial for the organization has ended (2026-11), so it no longer
+      reviews any repo. Do not wait for a Greptile review or ask for one.
     - **Revix:** a few free reviews per day for the organization, reset at
       00:00 UTC. Over it, the review body is a *"free-quota-reached"* badge
       (host#535).
