@@ -223,6 +223,9 @@ and relative links were adjusted to suit a standalone file.
     `review` check is red until that time. Ask for one PR at a time. Comment once per PR with the job id, and merge
     when every other check, HIL included, is green and J-Bot reviewed the PR's code
     before the limit.
+    ⚠️ A /jbot run cancelled within seconds was cancelled by another comment's run
+    (fixed by the concurrency suffix); start it again from the Actions tab
+    (workflow_dispatch with the PR number).
     ⚠️ **A re-run cannot pick up a changed `jbot-review.yml`.** The workflow runs on
     `pull_request`, so it reads the file from the PR's merge commit, and a job
     re-run reuses that commit. After the workflow changes on the default branch,
