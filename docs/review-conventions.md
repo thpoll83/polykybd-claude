@@ -220,12 +220,12 @@ and relative links were adjusted to suit a standalone file.
     uses 3 or 4). The check is not required, so it does not block a merge.
     ⚠️ **About 12 Codex reviews in 30 minutes used up the window** (2026-11-23, 21:18
     UTC). The job log then says "usageLimitExceeded ... try again at <time>", and the
-    `review` check is red until that time. Ask for one PR at a time.
-    ⚠️ A /jbot run cancelled within seconds was cancelled by another comment's run
-    (fixed by the concurrency suffix); start it again from the Actions tab
-    (workflow_dispatch with the PR number). Comment once per PR with the job id, and merge
+    `review` check is red until that time. Ask for one PR at a time. Comment once per PR with the job id, and merge
     when every other check, HIL included, is green and J-Bot reviewed the PR's code
     before the limit.
+    ⚠️ A /jbot run cancelled within seconds was cancelled by another comment's run
+    (fixed by the concurrency suffix); start it again from the Actions tab
+    (workflow_dispatch with the PR number).
     ⚠️ **A re-run cannot pick up a changed `jbot-review.yml`.** The workflow runs on
     `pull_request`, so it reads the file from the PR's merge commit, and a job
     re-run reuses that commit. After the workflow changes on the default branch,
