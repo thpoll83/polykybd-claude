@@ -51,9 +51,15 @@ Python deps: `requirements.txt`. System packages (`uhubctl`, hidapi, `picotool`,
   `usb_disconnect()` and returns false so the slave does not enumerate. Flash `*_hil_left.uf2` to `--left` and
   `*_hil_right.uf2` to `--right`. One image on both sides makes both master, which the
   `single master enumerates` test catches.
+- The fwapply job builds `-e POLYKYBD_HIL=stamp` images instead (`-DPOLYKYBD_HIL_STAMP`):
+  the role comes from the handedness stamp, LEFT is master and RIGHT is slave. The right
+  image adds `-e POLYKYBD_FORCE_HAND=right`; the left image forces no side, because the
+  apply installs it on the right half too. So the slave stays a slave after an apply.
 - **Handedness is a flash stamp in the firmware**, set over HID cmd 25
-  (`station/set_handedness.py`). The firmware does not use EE_HANDS. The HIL build
-  ignores handedness, so the rig needs no provisioning before a run.
+  (`station/set_handedness.py`). The firmware does not use EE_HANDS. The `left` and
+  `right` HIL builds ignore handedness for the role, so those runs need no provisioning.
+  The `stamp` builds read it: the rig's left half has a LEFT stamp, and the fwapply
+  right image writes RIGHT.
 - **The right half is flashed first**, because it talks over the split UART rather than
   USB HID.
 
